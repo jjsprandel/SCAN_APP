@@ -30,10 +30,6 @@ function UserManagement() {
           }))
         : [];
       setUsers(usersArray);
-      if (usersArray.length > 0) {
-        setProfileData(usersArray[0]);
-        setEditedProfileData(usersArray[0]);
-      }
     });
 
     return () => {
@@ -60,13 +56,21 @@ function UserManagement() {
   };
 
   const handleSaveClick = () => {
+    const updatedProfileData = {
+      ...editedProfileData,
+      checkInStatus: editedProfileData.checkInStatus,
+      activeStudent: editedProfileData.activeStudent,
+    };
+    delete updatedProfileData.userId; // Ensure userId is not included in the user data
+
     if (profileData) {
       // Update existing user
       const userRef = ref(database, `users/${profileData.userId}`);
-      set(userRef, editedProfileData)
+      set(userRef, updatedProfileData)
         .then(() => {
           // Update the local state after successful save
-          setProfileData(editedProfileData);
+          setProfileData(null);
+          setEditedProfileData({});
           setIsEditMode(false);
         })
         .catch((error) => {
@@ -75,9 +79,10 @@ function UserManagement() {
     } else {
       // Add new user
       const userRef = ref(database, `users/${newUserId}`);
-      set(userRef, editedProfileData)
+      set(userRef, updatedProfileData)
         .then(() => {
-          setProfileData(editedProfileData);
+          setProfileData(null);
+          setEditedProfileData({});
           setIsEditMode(false);
         })
         .catch((error) => {
@@ -109,6 +114,8 @@ function UserManagement() {
       firstName: "",
       lastName: "",
       location: "",
+      checkInStatus: "Checked Out",
+      activeStudent: "No",
       totalOccupancyTime: "",
       averageStayDuration: "",
     });
@@ -155,7 +162,7 @@ function UserManagement() {
                   <td>{item.userId}</td>
                   <td>{item.firstName || "N/A"}</td>
                   <td>{item.lastName || "N/A"}</td>
-                  <td>{item.checkInStatus ? "Checked In" : "Checked Out"}</td>
+                  <td>{item.checkInStatus}</td>
                 </tr>
               ))}
             </tbody>
@@ -247,6 +254,60 @@ function UserManagement() {
                         />
                       ) : (
                         <p>{profileData.lastName || "N/A"}</p>
+                      )}
+                    </Col>
+                  </Row>
+
+                  <Row className="w-100 d-flex justify-content-center align-items-center">
+                    <Col
+                      md={6}
+                      className="d-flex justify-content-left align-items-left"
+                    >
+                      <p>Check-In Status:</p>
+                    </Col>
+                    <Col
+                      md={6}
+                      className="d-flex justify-content-left align-items-left"
+                    >
+                      {isEditMode ? (
+                        <Form.Control
+                          as="select"
+                          name="checkInStatus"
+                          value={editedProfileData.checkInStatus}
+                          onChange={handleInputChange}
+                        >
+                          <option value="Checked In">Checked In</option>
+                          <option value="Checked Out">Checked Out</option>
+                        </Form.Control>
+                      ) : (
+                        <p>{profileData.checkInStatus}</p>
+                      )}
+                    </Col>
+                  </Row>
+
+                  <Row className="w-100 d-flex justify-content-center align-items-center">
+                    <Col
+                      md={6}
+                      className="d-flex justify-content-left align-items-left"
+                    >
+                      <p>Active Student:</p>
+                    </Col>
+                    <Col
+                      md={6}
+                      className="d-flex justify-content-left align-items-left"
+                    >
+                      {isEditMode ? (
+                        <Form.Control
+                          as="select"
+                          name="activeStudent"
+                          value={editedProfileData.activeStudent}
+                          onChange={handleInputChange}
+                        >
+                          <option value="Yes">Yes</option>
+                          <option value="No">No</option>
+                        </Form.Control>
+                      ) : (
+                        <p>{profileData.activeStudent}</p>
                       )}
                     </Col>
                   </Row>
