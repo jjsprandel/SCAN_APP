@@ -19,7 +19,7 @@ function CustomNavbar() {
         </Nav.Link>
       </Nav>
       <Nav className="">
-        <Nav.Link href="/profile">
+        <Nav.Link href="/auth">
           <img
             src="/imgs/profile.png"
             alt="Profile"
