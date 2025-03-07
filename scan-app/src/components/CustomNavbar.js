@@ -1,7 +1,10 @@
 import React from "react";
 import { Navbar, Nav } from "react-bootstrap";
+import { useAuth } from "../context/AuthContext";
 
 function CustomNavbar() {
+  const { currentUser } = useAuth();
+
   return (
     <Navbar bg="dark" variant="dark" expand="lg">
       <Navbar.Brand href="/" className="ms-3">
@@ -11,12 +14,16 @@ function CustomNavbar() {
         <Nav.Link href="/" className="px-3">
           Analytics Dashboard
         </Nav.Link>
-        <Nav.Link href="/activity-log" className="px-3">
-          Activity Log
-        </Nav.Link>
-        <Nav.Link href="/user-management" className="px-3">
-          User Management
-        </Nav.Link>
+        {currentUser && (
+          <>
+            <Nav.Link href="/activity-log" className="px-3">
+              Activity Log
+            </Nav.Link>
+            <Nav.Link href="/user-management" className="px-3">
+              User Management
+            </Nav.Link>
+          </>
+        )}
       </Nav>
       <Nav className="">
         <Nav.Link href="/profile">

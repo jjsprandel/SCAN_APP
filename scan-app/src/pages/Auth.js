@@ -1,31 +1,27 @@
 // src/pages/Auth.js
 import React, { useState } from "react";
 import { auth } from "../services/Firebase";
-import {
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-} from "firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { Container, Row, Col, Form, Button, Card } from "react-bootstrap";
 
 function Auth() {
-  const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleAuth = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      if (isLogin) {
-        await signInWithEmailAndPassword(auth, email, password);
-      } else {
-        await createUserWithEmailAndPassword(auth, email, password);
-      }
+      await signInWithEmailAndPassword(auth, email, password);
       navigate("/");
     } catch (error) {
-      console.error("Error with authentication:", error);
+      console.error("Error logging in:", error);
     }
+  };
+
+  const handleGuest = () => {
+    navigate("/");
   };
 
   return (
@@ -34,10 +30,8 @@ function Auth() {
         <Col>
           <Card>
             <Card.Body>
-              <h2 className="text-center mb-4">
-                {isLogin ? "Login" : "Signup"}
-              </h2>
-              <Form onSubmit={handleAuth}>
+              <h2 className="text-center mb-4">Login</h2>
+              <Form onSubmit={handleLogin}>
                 <Form.Group controlId="formBasicEmail">
                   <Form.Label>Email address</Form.Label>
                   <Form.Control
@@ -61,16 +55,16 @@ function Auth() {
                 </Form.Group>
 
                 <Button variant="primary" type="submit" className="w-100 mt-4">
-                  {isLogin ? "Login" : "Signup"}
+                  Login
                 </Button>
               </Form>
-              <div className="text-center mt-3">
-                <Button variant="link" onClick={() => setIsLogin(!isLogin)}>
-                  {isLogin
-                    ? "Don't have an account? Signup"
-                    : "Already have an account? Login"}
-                </Button>
-              </div>
+              <Button
+                variant="secondary"
+                className="w-100 mt-3"
+                onClick={handleGuest}
+              >
+                Continue as Guest
+              </Button>
             </Card.Body>
           </Card>
         </Col>
