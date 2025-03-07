@@ -1,0 +1,824 @@
+{
+  "activityLog": {
+    "20250307120000": {
+      "action": "Check-In",
+      "location": "UCF Library",
+      "timestamp": "20250307_120000",
+      "userId": "12334"
+    },
+    "20250307123000": {
+      "action": "Check-Out",
+      "location": "UCF Library",
+      "timestamp": "20250307_123000",
+      "userId": "12334"
+    },
+    "20250307130000": {
+      "action": "Check-In",
+      "location": "UCF Arena",
+      "timestamp": "20250307_130000",
+      "userId": "9988776655"
+    },
+    "20250307133000": {
+      "action": "Check-Out",
+      "location": "UCF Arena",
+      "timestamp": "20250307_133000",
+      "userId": "9988776655"
+    },
+    "20250307140000": {
+      "action": "Check-In",
+      "location": "UCF RWC",
+      "timestamp": "20250307_140000",
+      "userId": "7766554433"
+    },
+    "20250307143000": {
+      "action": "Check-Out",
+      "location": "UCF RWC",
+      "timestamp": "20250307_143000",
+      "userId": "7766554433"
+    },
+    "20250307150000": {
+      "action": "Check-In",
+      "location": "UCF Library",
+      "timestamp": "20250307_150000",
+      "userId": "3344556677"
+    },
+    "20250307153000": {
+      "action": "Check-Out",
+      "location": "UCF Library",
+      "timestamp": "20250307_153000",
+      "userId": "3344556677"
+    },
+    "20250307160000": {
+      "action": "Check-In",
+      "location": "UCF Arena",
+      "timestamp": "20250307_160000",
+      "userId": "2233445566"
+    },
+    "20250307163000": {
+      "action": "Check-Out",
+      "location": "UCF Arena",
+      "timestamp": "20250307_163000",
+      "userId": "2233445566"
+    },
+    "20250307170000": {
+      "action": "Check-In",
+      "location": "UCF RWC",
+      "timestamp": "20250307_170000",
+      "userId": "4455667788"
+    },
+    "20250307173000": {
+      "action": "Check-Out",
+      "location": "UCF RWC",
+      "timestamp": "20250307_173000",
+      "userId": "4455667788"
+    },
+    "20250307180000": {
+      "action": "Check-In",
+      "location": "UCF Library",
+      "timestamp": "20250307_180000",
+      "userId": "5566778890"
+    },
+    "20250307183000": {
+      "action": "Check-Out",
+      "location": "UCF Library",
+      "timestamp": "20250307_183000",
+      "userId": "5566778890"
+    },
+    "20250307190000": {
+      "action": "Check-In",
+      "location": "UCF Arena",
+      "timestamp": "20250307_190000",
+      "userId": "6677889901"
+    },
+    "20250307193000": {
+      "action": "Check-Out",
+      "location": "UCF Arena",
+      "timestamp": "20250307_193000",
+      "userId": "6677889901"
+    },
+    "20250307200000": {
+      "action": "Check-In",
+      "location": "UCF RWC",
+      "timestamp": "20250307_200000",
+      "userId": "2233445567"
+    },
+    "20250307203000": {
+      "action": "Check-Out",
+      "location": "UCF RWC",
+      "timestamp": "20250307_203000",
+      "userId": "2233445567"
+    },
+    "20250307210000": {
+      "action": "Check-In",
+      "location": "UCF Library",
+      "timestamp": "20250307_210000",
+      "userId": "3344556678"
+    },
+    "20250307213000": {
+      "action": "Check-Out",
+      "location": "UCF Library",
+      "timestamp": "20250307_213000",
+      "userId": "3344556678"
+    },
+    "20250307220000": {
+      "action": "Check-In",
+      "location": "UCF Arena",
+      "timestamp": "20250307_220000",
+      "userId": "4455667789"
+    },
+    "20250307223000": {
+      "action": "Check-Out",
+      "location": "UCF Arena",
+      "timestamp": "20250307_223000",
+      "userId": "4455667789"
+    },
+    "20250307230000": {
+      "action": "Check-In",
+      "location": "UCF RWC",
+      "timestamp": "20250307_230000",
+      "userId": "5566778891"
+    },
+    "20250307233000": {
+      "action": "Check-Out",
+      "location": "UCF RWC",
+      "timestamp": "20250307_233000",
+      "userId": "5566778891"
+    },
+    "20250308000000": {
+      "action": "Check-In",
+      "location": "UCF Library",
+      "timestamp": "20250308_000000",
+      "userId": "6677889902"
+    },
+    "20250308003000": {
+      "action": "Check-Out",
+      "location": "UCF Library",
+      "timestamp": "20250308_003000",
+      "userId": "6677889902"
+    },
+    "20250308010000": {
+      "action": "Check-In",
+      "location": "UCF Arena",
+      "timestamp": "20250308_010000",
+      "userId": "7788990011"
+    },
+    "20250308013000": {
+      "action": "Check-Out",
+      "location": "UCF Arena",
+      "timestamp": "20250308_013000",
+      "userId": "7788990011"
+    },
+    "20250308020000": {
+      "action": "Check-In",
+      "location": "UCF RWC",
+      "timestamp": "20250308_020000",
+      "userId": "8899001122"
+    },
+    "20250308023000": {
+      "action": "Check-Out",
+      "location": "UCF RWC",
+      "timestamp": "20250308_023000",
+      "userId": "8899001122"
+    },
+    "20250308030000": {
+      "action": "Check-In",
+      "location": "UCF Library",
+      "timestamp": "20250308_030000",
+      "userId": "9900112233"
+    },
+    "20250308033000": {
+      "action": "Check-Out",
+      "location": "UCF Library",
+      "timestamp": "20250308_033000",
+      "userId": "9900112233"
+    },
+    "20250308040000": {
+      "action": "Check-In",
+      "location": "UCF Arena",
+      "timestamp": "20250308_040000",
+      "userId": "1011121314"
+    },
+    "20250308043000": {
+      "action": "Check-Out",
+      "location": "UCF Arena",
+      "timestamp": "20250308_043000",
+      "userId": "1011121314"
+    },
+    "20250308050000": {
+      "action": "Check-In",
+      "location": "UCF RWC",
+      "timestamp": "20250308_050000",
+      "userId": "1112131415"
+    },
+    "20250308053000": {
+      "action": "Check-Out",
+      "location": "UCF RWC",
+      "timestamp": "20250308_053000",
+      "userId": "1112131415"
+    },
+    "20250308060000": {
+      "action": "Check-In",
+      "location": "UCF Library",
+      "timestamp": "20250308_060000",
+      "userId": "1213141516"
+    },
+    "20250308063000": {
+      "action": "Check-Out",
+      "location": "UCF Library",
+      "timestamp": "20250308_063000",
+      "userId": "1213141516"
+    },
+    "20250308070000": {
+      "action": "Check-In",
+      "location": "UCF Arena",
+      "timestamp": "20250308_070000",
+      "userId": "1314151617"
+    },
+    "20250308073000": {
+      "action": "Check-Out",
+      "location": "UCF Arena",
+      "timestamp": "20250308_073000",
+      "userId": "1314151617"
+    },
+    "20250308080000": {
+      "action": "Check-In",
+      "location": "UCF RWC",
+      "timestamp": "20250308_080000",
+      "userId": "1415161718"
+    },
+    "20250308083000": {
+      "action": "Check-Out",
+      "location": "UCF RWC",
+      "timestamp": "20250308_083000",
+      "userId": "1415161718"
+    },
+    "20250308090000": {
+      "action": "Check-In",
+      "location": "UCF Library",
+      "timestamp": "20250308_090000",
+      "userId": "1516171819"
+    },
+    "20250308093000": {
+      "action": "Check-Out",
+      "location": "UCF Library",
+      "timestamp": "20250308_093000",
+      "userId": "1516171819"
+    },
+    "20250308100000": {
+      "action": "Check-In",
+      "location": "UCF Arena",
+      "timestamp": "20250308_100000",
+      "userId": "1617181920"
+    },
+    "20250308103000": {
+      "action": "Check-Out",
+      "location": "UCF Arena",
+      "timestamp": "20250308_103000",
+      "userId": "1617181920"
+    },
+    "20250308110000": {
+      "action": "Check-In",
+      "location": "UCF RWC",
+      "timestamp": "20250308_110000",
+      "userId": "1718192021"
+    },
+    "20250308113000": {
+      "action": "Check-Out",
+      "location": "UCF RWC",
+      "timestamp": "20250308_113000",
+      "userId": "1718192021"
+    },
+    "20250308120000": {
+      "action": "Check-In",
+      "location": "UCF Library",
+      "timestamp": "20250308_120000",
+      "userId": "1819202122"
+    },
+    "20250308123000": {
+      "action": "Check-Out",
+      "location": "UCF Library",
+      "timestamp": "20250308_123000",
+      "userId": "1819202122"
+    },
+    "20250308130000": {
+      "action": "Check-In",
+      "location": "UCF Arena",
+      "timestamp": "20250308_130000",
+      "userId": "1920212223"
+    },
+    "20250308133000": {
+      "action": "Check-Out",
+      "location": "UCF Arena",
+      "timestamp": "20250308_133000",
+      "userId": "1920212223"
+    },
+    "20250308140000": {
+      "action": "Check-In",
+      "location": "UCF RWC",
+      "timestamp": "20250308_140000",
+      "userId": "2021222324"
+    },
+    "20250308143000": {
+      "action": "Check-Out",
+      "location": "UCF RWC",
+      "timestamp": "20250308_143000",
+      "userId": "2021222324"
+    },
+    "20250308150000": {
+      "action": "Check-In",
+      "location": "UCF Library",
+      "timestamp": "20250308_150000",
+      "userId": "2122232425"
+    },
+    "20250308153000": {
+      "action": "Check-Out",
+      "location": "UCF Library",
+      "timestamp": "20250308_153000",
+      "userId": "2122232425"
+    }
+  },
+  "stats": {
+    "average_stay": {
+      "UCF Arena": {
+        "num_visits": 2,
+        "total_time": 6
+      },
+      "UCF Library": {
+        "num_visits": 2,
+        "total_time": 8
+      },
+      "UCF RWC": {
+        "num_visits": 19,
+        "total_time": 1400
+      }
+    },
+    "histogram": {
+      "UCF Arena": {
+        "Monday": [
+          0, 0, 0, 0, 0, 0, 15, 25, 40, 65, 80, 110, 140, 180, 185, 175, 150,
+          160, 175, 155, 140, 115, 80, 70
+        ],
+        "Tuesday": [
+          0, 0, 0, 0, 0, 0, 15, 25, 40, 65, 80, 110, 140, 180, 185, 175, 150,
+          160, 175, 155, 140, 115, 80, 70
+        ],
+        "Wednesday": [
+          0, 0, 0, 0, 0, 0, 15, 25, 40, 65, 80, 110, 140, 180, 185, 175, 150,
+          160, 175, 155, 140, 115, 80, 70
+        ],
+        "Thursday": [
+          0, 0, 0, 0, 0, 0, 15, 25, 40, 65, 80, 110, 140, 180, 185, 175, 150,
+          160, 175, 155, 140, 115, 80, 70
+        ],
+        "Friday": [
+          0, 0, 0, 0, 0, 0, 15, 25, 40, 65, 80, 110, 140, 180, 185, 175, 150,
+          160, 175, 155, 140, 115, 80, 70
+        ],
+        "Saturday": [
+          0, 0, 0, 0, 0, 0, 15, 25, 40, 65, 80, 110, 140, 180, 185, 175, 150,
+          160, 175, 155, 140, 115, 80, 70
+        ],
+        "Sunday": [
+          0, 0, 0, 0, 0, 0, 15, 25, 40, 65, 80, 110, 140, 180, 185, 175, 150,
+          160, 175, 155, 140, 115, 80, 70
+        ]
+      },
+      "UCF Library": {
+        "Monday": [
+          0, 0, 0, 0, 0, 0, 15, 25, 40, 65, 80, 110, 140, 180, 185, 175, 150,
+          160, 175, 155, 140, 115, 80, 70
+        ],
+        "Tuesday": [
+          0, 0, 0, 0, 0, 0, 15, 25, 40, 65, 80, 110, 140, 180, 185, 175, 150,
+          160, 175, 155, 140, 115, 80, 70
+        ],
+        "Wednesday": [
+          0, 0, 0, 0, 0, 0, 15, 25, 40, 65, 80, 110, 140, 180, 185, 175, 150,
+          160, 175, 155, 140, 115, 80, 70
+        ],
+        "Thursday": [
+          0, 0, 0, 0, 0, 0, 15, 25, 40, 65, 80, 110, 140, 180, 185, 175, 150,
+          160, 175, 155, 140, 115, 80, 70
+        ],
+        "Friday": [
+          0, 0, 0, 0, 0, 0, 15, 25, 40, 65, 80, 110, 140, 180, 185, 175, 150,
+          160, 175, 155, 140, 115, 80, 70
+        ],
+        "Saturday": [
+          0, 0, 0, 0, 0, 0, 15, 25, 40, 65, 80, 110, 140, 180, 185, 175, 150,
+          160, 175, 155, 140, 115, 80, 70
+        ],
+        "Sunday": [
+          0, 0, 0, 0, 0, 0, 15, 25, 40, 65, 80, 110, 140, 180, 185, 175, 150,
+          160, 175, 155, 140, 115, 80, 70
+        ]
+      },
+      "UCF RWC": {
+        "Monday": [
+          0, 0, 0, 0, 0, 0, 15, 25, 40, 65, 80, 110, 140, 180, 185, 175, 150,
+          160, 175, 155, 140, 115, 80, 70
+        ],
+        "Tuesday": [
+          0, 0, 0, 0, 0, 0, 15, 25, 40, 65, 80, 110, 140, 180, 185, 175, 150,
+          160, 175, 155, 140, 115, 80, 70
+        ],
+        "Wednesday": [
+          0, 0, 0, 0, 0, 0, 15, 25, 40, 65, 80, 110, 140, 180, 185, 175, 150,
+          160, 175, 155, 140, 115, 80, 70
+        ],
+        "Thursday": [
+          0, 0, 0, 0, 0, 0, 15, 25, 40, 65, 80, 110, 140, 180, 185, 175, 150,
+          160, 175, 155, 140, 115, 80, 70
+        ],
+        "Friday": [
+          0, 0, 0, 0, 0, 0, 15, 25, 40, 65, 80, 110, 140, 180, 185, 175, 150,
+          160, 175, 155, 140, 115, 80, 70
+        ],
+        "Saturday": [
+          0, 0, 0, 0, 0, 0, 15, 25, 60, 45, 30, 55, 65, 80, 100, 85, 115, 110,
+          95, 70, 55, 35, 20, 15
+        ],
+        "Sunday": [
+          0, 0, 0, 0, 0, 0, 15, 25, 40, 65, 80, 110, 140, 180, 185, 175, 150,
+          160, 175, 155, 140, 115, 80, 70
+        ]
+      }
+    },
+    "occupancy": {
+      "UCF Arena": 486,
+      "UCF Library": 10,
+      "UCF RWC": 9
+    }
+  },
+  "users": {
+    "1111": {
+      "activeStudent": "Yes",
+      "averageStayDuration": "0",
+      "checkInStatus": "Checked Out",
+      "firstName": "Mr",
+      "lastName": "Man",
+      "location": "UCF RWC",
+      "totalOccupancyTime": "0"
+    },
+    "12334": {
+      "activeStudent": "No",
+      "averageStayDuration": "90",
+      "checkInStatus": "Checked Out",
+      "firstName": "Cory",
+      "lastName": "Brynds",
+      "location": "UCF RWC",
+      "totalOccupancyTime": "1234"
+    },
+    "9988776655": {
+      "activeStudent": "No",
+      "averageStayDuration": "40",
+      "checkInStatus": "Checked Out",
+      "firstName": "David",
+      "lastCheckIn": "20250306_240000",
+      "lastCheckOut": "20250306_243000",
+      "lastName": "Evans",
+      "location": "UCF RWC",
+      "passkey": "3210",
+      "role": "student",
+      "totalOccupancyTime": "100"
+    },
+    "7766554433": {
+      "activeStudent": "Yes",
+      "averageStayDuration": "55",
+      "checkInStatus": "Checked In",
+      "firstName": "Eve",
+      "lastCheckIn": "20250306_250000",
+      "lastCheckOut": "20250306_253000",
+      "lastName": "Foster",
+      "location": "UCF Library",
+      "passkey": "2109",
+      "role": "admin",
+      "totalOccupancyTime": "220"
+    },
+    "3344556677": {
+      "activeStudent": "No",
+      "averageStayDuration": "35",
+      "checkInStatus": "Checked Out",
+      "firstName": "Frank",
+      "lastCheckIn": "20250306_260000",
+      "lastCheckOut": "20250306_263000",
+      "lastName": "Green",
+      "location": "UCF Arena",
+      "passkey": "1098",
+      "role": "student",
+      "totalOccupancyTime": "130"
+    },
+    "2233445566": {
+      "activeStudent": "Yes",
+      "averageStayDuration": "65",
+      "checkInStatus": "Checked In",
+      "firstName": "Grace",
+      "lastCheckIn": "20250306_270000",
+      "lastCheckOut": "20250306_273000",
+      "lastName": "Harris",
+      "location": "UCF RWC",
+      "passkey": "0987",
+      "role": "admin",
+      "totalOccupancyTime": "240"
+    },
+    "4455667788": {
+      "activeStudent": "No",
+      "averageStayDuration": "25",
+      "checkInStatus": "Checked Out",
+      "firstName": "Hank",
+      "lastCheckIn": "20250306_280000",
+      "lastCheckOut": "20250306_283000",
+      "lastName": "Ivy",
+      "location": "UCF Library",
+      "passkey": "8765",
+      "role": "student",
+      "totalOccupancyTime": "110"
+    },
+    "5566778890": {
+      "activeStudent": "Yes",
+      "averageStayDuration": "70",
+      "checkInStatus": "Checked In",
+      "firstName": "Ivy",
+      "lastCheckIn": "20250306_290000",
+      "lastCheckOut": "20250306_293000",
+      "lastName": "Jones",
+      "location": "UCF Arena",
+      "passkey": "7654",
+      "role": "admin",
+      "totalOccupancyTime": "260"
+    },
+    "6677889901": {
+      "activeStudent": "No",
+      "averageStayDuration": "20",
+      "checkInStatus": "Checked Out",
+      "firstName": "Jack",
+      "lastCheckIn": "20250306_300000",
+      "lastCheckOut": "20250306_303000",
+      "lastName": "King",
+      "location": "UCF RWC",
+      "passkey": "6543",
+      "role": "student",
+      "totalOccupancyTime": "90"
+    },
+    "2233445567": {
+      "activeStudent": "Yes",
+      "averageStayDuration": "55",
+      "checkInStatus": "Checked In",
+      "firstName": "Liam",
+      "lastCheckIn": "20250306_310000",
+      "lastCheckOut": "20250306_313000",
+      "lastName": "Miller",
+      "location": "UCF Library",
+      "passkey": "1234",
+      "role": "student",
+      "totalOccupancyTime": "150"
+    },
+    "3344556678": {
+      "activeStudent": "No",
+      "averageStayDuration": "45",
+      "checkInStatus": "Checked Out",
+      "firstName": "Olivia",
+      "lastCheckIn": "20250306_320000",
+      "lastCheckOut": "20250306_323000",
+      "lastName": "Wilson",
+      "location": "UCF Arena",
+      "passkey": "5678",
+      "role": "admin",
+      "totalOccupancyTime": "180"
+    },
+    "4455667789": {
+      "activeStudent": "Yes",
+      "averageStayDuration": "65",
+      "checkInStatus": "Checked In",
+      "firstName": "Noah",
+      "lastCheckIn": "20250306_330000",
+      "lastCheckOut": "20250306_333000",
+      "lastName": "Moore",
+      "location": "UCF RWC",
+      "passkey": "4321",
+      "role": "student",
+      "totalOccupancyTime": "200"
+    },
+    "5566778891": {
+      "activeStudent": "No",
+      "averageStayDuration": "35",
+      "checkInStatus": "Checked Out",
+      "firstName": "Emma",
+      "lastCheckIn": "20250306_340000",
+      "lastCheckOut": "20250306_343000",
+      "lastName": "Taylor",
+      "location": "UCF Library",
+      "passkey": "8765",
+      "role": "student",
+      "totalOccupancyTime": "120"
+    },
+    "6677889902": {
+      "activeStudent": "Yes",
+      "averageStayDuration": "50",
+      "checkInStatus": "Checked In",
+      "firstName": "Ava",
+      "lastCheckIn": "20250306_350000",
+      "lastCheckOut": "20250306_353000",
+      "lastName": "Anderson",
+      "location": "UCF Arena",
+      "passkey": "7654",
+      "role": "admin",
+      "totalOccupancyTime": "220"
+    },
+    "7788990011": {
+      "activeStudent": "No",
+      "averageStayDuration": "40",
+      "checkInStatus": "Checked Out",
+      "firstName": "Sophia",
+      "lastCheckIn": "20250306_360000",
+      "lastCheckOut": "20250306_363000",
+      "lastName": "Thomas",
+      "location": "UCF RWC",
+      "passkey": "6543",
+      "role": "student",
+      "totalOccupancyTime": "140"
+    },
+    "8899001122": {
+      "activeStudent": "Yes",
+      "averageStayDuration": "60",
+      "checkInStatus": "Checked In",
+      "firstName": "James",
+      "lastCheckIn": "20250306_370000",
+      "lastCheckOut": "20250306_373000",
+      "lastName": "Jackson",
+      "location": "UCF Library",
+      "passkey": "5432",
+      "role": "admin",
+      "totalOccupancyTime": "160"
+    },
+    "9900112233": {
+      "activeStudent": "No",
+      "averageStayDuration": "30",
+      "checkInStatus": "Checked Out",
+      "firstName": "Isabella",
+      "lastCheckIn": "20250306_380000",
+      "lastCheckOut": "20250306_383000",
+      "lastName": "White",
+      "location": "UCF Arena",
+      "passkey": "4321",
+      "role": "student",
+      "totalOccupancyTime": "100"
+    },
+    "1011121314": {
+      "activeStudent": "Yes",
+      "averageStayDuration": "70",
+      "checkInStatus": "Checked In",
+      "firstName": "Mia",
+      "lastCheckIn": "20250306_390000",
+      "lastCheckOut": "20250306_393000",
+      "lastName": "Harris",
+      "location": "UCF RWC",
+      "passkey": "3210",
+      "role": "admin",
+      "totalOccupancyTime": "180"
+    },
+    "1112131415": {
+      "activeStudent": "No",
+      "averageStayDuration": "25",
+      "checkInStatus": "Checked Out",
+      "firstName": "Charlotte",
+      "lastCheckIn": "20250306_400000",
+      "lastCheckOut": "20250306_403000",
+      "lastName": "Martin",
+      "location": "UCF Library",
+      "passkey": "2109",
+      "role": "student",
+      "totalOccupancyTime": "90"
+    },
+    "1213141516": {
+      "activeStudent": "Yes",
+      "averageStayDuration": "80",
+      "checkInStatus": "Checked In",
+      "firstName": "Lily",
+      "lastCheckIn": "20250306_410000",
+      "lastCheckOut": "20250306_413000",
+      "lastName": "Brown",
+      "location": "UCF Arena",
+      "passkey": "1234",
+      "role": "student",
+      "totalOccupancyTime": "200"
+    },
+    "1314151617": {
+      "activeStudent": "No",
+      "averageStayDuration": "35",
+      "checkInStatus": "Checked Out",
+      "firstName": "Mason",
+      "lastCheckIn": "20250306_420000",
+      "lastCheckOut": "20250306_423000",
+      "lastName": "Clark",
+      "location": "UCF Library",
+      "passkey": "5678",
+      "role": "admin",
+      "totalOccupancyTime": "140"
+    },
+    "1415161718": {
+      "activeStudent": "Yes",
+      "averageStayDuration": "55",
+      "checkInStatus": "Checked In",
+      "firstName": "Ethan",
+      "lastCheckIn": "20250306_430000",
+      "lastCheckOut": "20250306_433000",
+      "lastName": "Lewis",
+      "location": "UCF RWC",
+      "passkey": "4321",
+      "role": "student",
+      "totalOccupancyTime": "180"
+    },
+    "1516171819": {
+      "activeStudent": "No",
+      "averageStayDuration": "40",
+      "checkInStatus": "Checked Out",
+      "firstName": "Aiden",
+      "lastCheckIn": "20250306_440000",
+      "lastCheckOut": "20250306_443000",
+      "lastName": "Walker",
+      "location": "UCF Arena",
+      "passkey": "8765",
+      "role": "student",
+      "totalOccupancyTime": "160"
+    },
+    "1617181920": {
+      "activeStudent": "Yes",
+      "averageStayDuration": "65",
+      "checkInStatus": "Checked In",
+      "firstName": "Harper",
+      "lastCheckIn": "20250306_450000",
+      "lastCheckOut": "20250306_453000",
+      "lastName": "Hall",
+      "location": "UCF Library",
+      "passkey": "7654",
+      "role": "admin",
+      "totalOccupancyTime": "220"
+    },
+    "1718192021": {
+      "activeStudent": "No",
+      "averageStayDuration": "30",
+      "checkInStatus": "Checked Out",
+      "firstName": "Ella",
+      "lastCheckIn": "20250306_460000",
+      "lastCheckOut": "20250306_463000",
+      "lastName": "Allen",
+      "location": "UCF RWC",
+      "passkey": "6543",
+      "role": "student",
+      "totalOccupancyTime": "120"
+    },
+    "1819202122": {
+      "activeStudent": "Yes",
+      "averageStayDuration": "75",
+      "checkInStatus": "Checked In",
+      "firstName": "Logan",
+      "lastCheckIn": "20250306_470000",
+      "lastCheckOut": "20250306_473000",
+      "lastName": "Young",
+      "location": "UCF Arena",
+      "passkey": "5432",
+      "role": "admin",
+      "totalOccupancyTime": "240"
+    },
+    "1920212223": {
+      "activeStudent": "No",
+      "averageStayDuration": "25",
+      "checkInStatus": "Checked Out",
+      "firstName": "Zoe",
+      "lastCheckIn": "20250306_480000",
+      "lastCheckOut": "20250306_483000",
+      "lastName": "King",
+      "location": "UCF Library",
+      "passkey": "4321",
+      "role": "student",
+      "totalOccupancyTime": "100"
+    },
+    "2021222324": {
+      "activeStudent": "Yes",
+      "averageStayDuration": "70",
+      "checkInStatus": "Checked In",
+      "firstName": "Lucas",
+      "lastCheckIn": "20250306_490000",
+      "lastCheckOut": "20250306_493000",
+      "lastName": "Scott",
+      "location": "UCF RWC",
+      "passkey": "3210",
+      "role": "admin",
+      "totalOccupancyTime": "180"
+    },
+    "2122232425": {
+      "activeStudent": "No",
+      "averageStayDuration": "20",
+      "checkInStatus": "Checked Out",
+      "firstName": "Aria",
+      "lastCheckIn": "20250306_500000",
+      "lastCheckOut": "20250306_503000",
+      "lastName": "Green",
+      "location": "UCF Arena",
+      "passkey": "2109",
+      "role": "student",
+      "totalOccupancyTime": "90"
+    }
+  }
+}
