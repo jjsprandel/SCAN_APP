@@ -14,14 +14,7 @@ function App() {
       <Routes>
         <Route path="/auth" element={<Auth />} />
         <Route path="/" element={<Layout />}>
-          <Route
-            index
-            element={
-              <PrivateRoute>
-                <Dashboard />
-              </PrivateRoute>
-            }
-          />
+          <Route index element={<Dashboard />} />
           <Route
             path="activity-log"
             element={
