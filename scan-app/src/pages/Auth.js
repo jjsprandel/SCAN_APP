@@ -3,20 +3,30 @@ import React, { useState } from "react";
 import { auth } from "../services/Firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import { Container, Row, Col, Form, Button, Card } from "react-bootstrap";
+import {
+  Container,
+  Row,
+  Col,
+  Form,
+  Button,
+  Card,
+  Alert,
+} from "react-bootstrap";
 
 function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setError(""); // Clear any previous errors
     try {
       await signInWithEmailAndPassword(auth, email, password);
       navigate("/");
     } catch (error) {
-      console.error("Error logging in:", error);
+      setError(error.message); // Set the error message
     }
   };
 
@@ -31,6 +41,7 @@ function Auth() {
           <Card>
             <Card.Body>
               <h2 className="text-center mb-4">Login</h2>
+              {error && <Alert variant="danger">{error}</Alert>}
               <Form onSubmit={handleLogin}>
                 <Form.Group controlId="formBasicEmail">
                   <Form.Label>Email address</Form.Label>
