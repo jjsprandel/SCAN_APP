@@ -6,6 +6,7 @@ import Dashboard from "./pages/Dashboard";
 import ActivityLog from "./pages/ActivityLog";
 import UserManagement from "./pages/UserManagement";
 import Auth from "./pages/Auth";
+import Profile from "./pages/Profile";
 import PrivateRoute from "./components/PrivateRoute";
 
 function App() {
@@ -31,6 +32,7 @@ function App() {
               </PrivateRoute>
             }
           />
+          <Route path="profile" element={<Profile />} />
         </Route>
       </Routes>
     </Router>
