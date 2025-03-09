@@ -36,8 +36,8 @@ function Auth() {
 
   return (
     <Container className="d-flex justify-content-center align-items-center vh-100">
-      <Row>
-        <Col>
+      <Row className="w-100">
+        <Col md={{ span: 4, offset: 4 }}>
           <Card>
             <Card.Body>
               <h2 className="text-center mb-4">Login</h2>

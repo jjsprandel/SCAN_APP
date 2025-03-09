@@ -21,7 +21,7 @@ function Profile() {
   return (
     <Container className="d-flex justify-content-center align-items-center vh-100">
       <Row className="w-100">
-        <Col md={{ span: 6, offset: 3 }}>
+        <Col md={{ span: 4, offset: 4 }}>
           <Card>
             <Card.Body>
               <h2 className="text-center mb-4">Profile</h2>
