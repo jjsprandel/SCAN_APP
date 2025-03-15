@@ -1,3 +1,4 @@
+// src/pages/UserManagement.js
 import React, { useState, useEffect } from "react";
 import {
   Container,
@@ -142,7 +143,7 @@ function UserManagement() {
       </Row>
 
       <Row className="flex-grow-1 mt-4">
-        <Col md={6}>
+        <Col md={6} className="order-2 order-md-1">
           <Table striped bordered hover responsive>
             <thead>
               <tr>
@@ -169,7 +170,7 @@ function UserManagement() {
           </Table>
         </Col>
 
-        <Col md={6}>
+        <Col md={6} className="order-1 order-md-2">
           <Card className="mb-3 flex-grow-1">
             <Card.Header>Profile</Card.Header>
             <Card.Body className="d-flex flex-column justify-content-center align-items-center">
@@ -431,7 +432,7 @@ function UserManagement() {
               )}
             </Card.Body>
           </Card>
-          <Row className="w-100 d-flex justify-content-center align-items-center">
+          <Row className="w-100 d-flex justify-content-center align-items-center pb-3">
             <Col
               md={6}
               className="d-flex justify-content-center align-items-center"
