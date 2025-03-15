@@ -1,13 +1,15 @@
 // src/App.js
-import React from "react";
+import React, { Suspense, lazy } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
 import Dashboard from "./pages/Dashboard";
-import ActivityLog from "./pages/ActivityLog";
-import UserManagement from "./pages/UserManagement";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import PrivateRoute from "./components/PrivateRoute";
+
+// Lazy load the ActivityLog and UserManagement components
+const ActivityLog = lazy(() => import("./pages/ActivityLog"));
+const UserManagement = lazy(() => import("./pages/UserManagement"));
 
 function App() {
   return (
@@ -20,7 +22,9 @@ function App() {
             path="activity-log"
             element={
               <PrivateRoute>
-                <ActivityLog />
+                <Suspense fallback={<div>Loading...</div>}>
+                  <ActivityLog />
+                </Suspense>
               </PrivateRoute>
             }
           />
@@ -28,7 +32,9 @@ function App() {
             path="user-management"
             element={
               <PrivateRoute>
-                <UserManagement />
+                <Suspense fallback={<div>Loading...</div>}>
+                  <UserManagement />
+                </Suspense>
               </PrivateRoute>
             }
           />
