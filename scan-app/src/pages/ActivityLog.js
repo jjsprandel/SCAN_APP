@@ -1,11 +1,14 @@
+// src/pages/ActivityLog.js
 import React, { useState, useEffect } from "react";
-import { Container, Row, Col, Form, Table } from "react-bootstrap";
+import { Container, Row, Col, Form, Table, Button } from "react-bootstrap";
 import { ref, onValue } from "firebase/database";
 import { database } from "../services/Firebase"; // Adjust the import path as necessary
 
 function ActivityLog() {
   const [activityLog, setActivityLog] = useState([]);
   const [users, setUsers] = useState({});
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 20;
 
   useEffect(() => {
     const activityLogRef = ref(database, "activityLog");
@@ -60,6 +63,19 @@ function ActivityLog() {
     });
   };
 
+  const handleNextPage = () => {
+    setCurrentPage((prevPage) => prevPage + 1);
+  };
+
+  const handlePreviousPage = () => {
+    setCurrentPage((prevPage) => Math.max(prevPage - 1, 1));
+  };
+
+  // Calculate the rows to display based on the current page
+  const indexOfLastRow = currentPage * rowsPerPage;
+  const indexOfFirstRow = indexOfLastRow - rowsPerPage;
+  const currentRows = activityLog.slice(indexOfFirstRow, indexOfLastRow);
+
   return (
     <Container fluid className="d-flex flex-column flex-grow-1 overflow-auto">
       {/* Row for the search bar */}
@@ -88,7 +104,7 @@ function ActivityLog() {
               </tr>
             </thead>
             <tbody>
-              {activityLog.map((item, index) => {
+              {currentRows.map((item, index) => {
                 const user = users[item.userId] || {};
                 return (
                   <tr key={index}>
@@ -103,6 +119,22 @@ function ActivityLog() {
               })}
             </tbody>
           </Table>
+          <div className="d-flex justify-content-between">
+            <Button
+              variant="secondary"
+              onClick={handlePreviousPage}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={handleNextPage}
+              disabled={indexOfLastRow >= activityLog.length}
+            >
+              Next
+            </Button>
+          </div>
         </Col>
       </Row>
     </Container>
