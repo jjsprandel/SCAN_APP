@@ -42,8 +42,6 @@ function Dashboard() {
   const currentDay = daysOfWeek[new Date().getDay()];
   const [selectedDay, setSelectedDay] = useState(currentDay);
 
-  // const [selectedDay, setSelectedDay] = useState("Monday");
-
   useEffect(() => {
     const activityLogRef = ref(database, "activityLog");
     const occupancyRef = ref(database, `stats/occupancy/${selectedLocation}`);
@@ -83,17 +81,22 @@ function Dashboard() {
         hourlyOccupancy[hour] += entry.count;
       });
 
-      // Convert to array format for charting
-      const occupancyDataArray = hourlyOccupancy.map((count, hour) => {
-        const period = hour >= 12 ? "PM" : "AM";
-        const formattedHour = hour % 12 === 0 ? 12 : hour % 12;
-        return {
-          time: `${formattedHour} ${period}`,
-          count,
-        };
-      });
+      // Filter data to only include times between 6 AM and 12 PM
+      const filteredOccupancyDataArray = hourlyOccupancy
+        .map((count, hour) => {
+          if (hour >= 6 && hour <= 12) {
+            const period = hour >= 12 ? "PM" : "AM";
+            const formattedHour = hour % 12 === 0 ? 12 : hour % 12;
+            return {
+              time: `${formattedHour} ${period}`,
+              count,
+            };
+          }
+          return null;
+        })
+        .filter((entry) => entry !== null);
 
-      setOccupancyData(occupancyDataArray);
+      setOccupancyData(filteredOccupancyDataArray);
     });
 
     const unsubscribeOccupancy = onValue(occupancyRef, (snapshot) => {
@@ -117,17 +120,22 @@ function Dashboard() {
         .fill(0)
         .map((_, hour) => data[hour] || 0);
 
-      // Convert to array format for charting
-      const formattedHistogramData = histogramDataArray.map((count, hour) => {
-        const period = hour >= 12 ? "PM" : "AM";
-        const formattedHour = hour % 12 === 0 ? 12 : hour % 12;
-        return {
-          time: `${formattedHour} ${period}`,
-          count,
-        };
-      });
+      // Filter data to only include times between 6 AM and 12 PM
+      const filteredHistogramData = histogramDataArray
+        .map((count, hour) => {
+          if (hour >= 6 && hour <= 24) {
+            const period = hour >= 12 ? "PM" : "AM";
+            const formattedHour = hour % 12 === 0 ? 12 : hour % 12;
+            return {
+              time: `${formattedHour} ${period}`,
+              count,
+            };
+          }
+          return null;
+        })
+        .filter((entry) => entry !== null);
 
-      setOccupancyData(formattedHistogramData);
+      setOccupancyData(filteredHistogramData);
     });
 
     // Cleanup subscriptions on unmount
