@@ -3,6 +3,7 @@ import { Container, Row, Col, Card, Form, Button } from "react-bootstrap";
 import { ref, onValue } from "firebase/database";
 import { database } from "../services/Firebase"; // Adjust the import path as necessary
 import Select from "react-select";
+import mqtt from "mqtt";
 
 function KioskManagement() {
   const [kiosks, setKiosks] = useState([]);
@@ -38,12 +39,59 @@ function KioskManagement() {
   }, []);
 
   const handleUpdateFirmware = () => {
-    // Implement firmware update logic here
-    console.log(
-      `Updating kiosks ${selectedKiosks
-        .map((kiosk) => kiosk.value)
-        .join(", ")} to version ${selectedVersion.value}`
+    console.log("Update Firmware button clicked");
+    console.log("Selected Kiosks:", selectedKiosks);
+    console.log("Selected Version:", selectedVersion);
+
+    const client = mqtt.connect(
+      "wss://0ec065087cf84d309f1c73b00c9441f8.s1.eu.hivemq.cloud:8884/mqtt",
+      {
+        username: "admin",
+        password: "Password1234",
+      }
     );
+
+    client.on("connect", () => {
+      console.log("MQTT client connected");
+
+      selectedKiosks.forEach((kiosk) => {
+        const topic = `kiosks/${kiosk.value}/update`;
+        const message = JSON.stringify({
+          firmware_version: selectedVersion.value,
+          download_url: `https://github.com/jjsprandel/SCAN/releases/download/${selectedVersion.value}/SCAN.bin`,
+        });
+
+        console.log(`Publishing to topic ${topic}:`, message);
+
+        client.publish(topic, message, (err) => {
+          if (err) {
+            console.error(`Failed to publish message to ${topic}:`, err);
+          } else {
+            console.log(`Message published to ${topic}:`, message);
+          }
+        });
+      });
+
+      client.end();
+    });
+
+    client.on("error", (err) => {
+      console.error("MQTT client error:", err);
+    });
+  };
+
+  const handleSelectAllKiosks = () => {
+    if (selectedKiosks.length === kiosks.length) {
+      setSelectedKiosks([]);
+    } else {
+      setSelectedKiosks(kiosks);
+    }
+  };
+
+  const customSelectAllOption = {
+    value: "select_all",
+    label:
+      selectedKiosks.length === kiosks.length ? "Deselect All" : "Select All",
   };
 
   return (
@@ -58,9 +106,19 @@ function KioskManagement() {
                   <Form.Label>Select Kiosks</Form.Label>
                   <Select
                     isMulti
-                    options={kiosks}
+                    options={[customSelectAllOption, ...kiosks]}
                     value={selectedKiosks}
-                    onChange={setSelectedKiosks}
+                    onChange={(selectedOptions) => {
+                      if (
+                        selectedOptions.some(
+                          (option) => option.value === "select_all"
+                        )
+                      ) {
+                        handleSelectAllKiosks();
+                      } else {
+                        setSelectedKiosks(selectedOptions);
+                      }
+                    }}
                   />
                 </Form.Group>
                 <Form.Group controlId="selectVersion" className="mt-3">

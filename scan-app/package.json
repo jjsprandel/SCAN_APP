@@ -8,6 +8,7 @@
     "chart.js": "^4.4.7",
     "cra-template": "1.2.0",
     "firebase": "^11.4.0",
+    "mqtt": "^5.10.4",
     "react": "^19.0.0",
     "react-bootstrap": "^2.10.7",
     "react-chartjs-2": "^5.3.0",
