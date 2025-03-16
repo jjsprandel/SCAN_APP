@@ -115,10 +115,11 @@ function Dashboard() {
     });
 
     const unsubscribeHistogram = onValue(histogramRef, (snapshot) => {
-      const data = snapshot.val() || {};
-      const histogramDataArray = new Array(24)
-        .fill(0)
-        .map((_, hour) => data[hour] || 0);
+      const data = snapshot.val() || [];
+      const histogramDataArray = new Array(24).fill(0).map((_, hour) => {
+        const hourData = data[hour] || {};
+        return hourData.currentStat || 0;
+      });
 
       // Filter data to only include times between 6 AM and 12 PM
       const filteredHistogramData = histogramDataArray

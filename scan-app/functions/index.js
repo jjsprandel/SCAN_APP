@@ -162,41 +162,41 @@ exports.updateOccupancy = onValueWritten(
   }
 );
 
-// exports.updateHourlyHistogram = onSchedule("every hour", async (event) => {
-//   const db = admin.database();
-//   const occupancyRef = db.ref("/stats/occupancy/UCF RWC"); // Change to your location key
-//   const histogramRef = db.ref("/stats/histogram/UCF RWC");
+exports.updateHourlyHistogram = onSchedule("every hour", async (event) => {
+  const db = admin.database();
+  const occupancyRef = db.ref("/stats/occupancy/UCF RWC"); // Change to your location key
+  const histogramRef = db.ref("/stats/histogram/UCF RWC");
 
-//   try {
-//     // Get the current occupancy
-//     const occupancySnapshot = await occupancyRef.once("value");
-//     const currentOccupancy = occupancySnapshot.val() || 0;
-//     console.log("Current Occupancy:", currentOccupancy);
+  try {
+    // Get the current occupancy
+    const occupancySnapshot = await occupancyRef.once("value");
+    const currentOccupancy = occupancySnapshot.val() || 0;
+    console.log("Current Occupancy:", currentOccupancy);
 
-//     // Get the current time
-//     const now = new Date();
-//     const options = {
-//       timeZone: "America/New_York",
-//       weekday: "long",
-//       hour: "numeric",
-//       minute: "numeric",
-//       second: "numeric",
-//       hour12: false,
-//     };
-//     const easternTime = new Intl.DateTimeFormat("en-US", options).format(now);
+    // Get the current time
+    const now = new Date();
+    const options = {
+      timeZone: "America/New_York",
+      weekday: "long",
+      hour: "numeric",
+      minute: "numeric",
+      second: "numeric",
+      hour12: false,
+    };
+    const easternTime = new Intl.DateTimeFormat("en-US", options).format(now);
 
-//     // Parse the Eastern Time date and time
-//     const [dayOfWeek, hour] = easternTime.split(",")[0].split(" ");
-//     const parsedHour = parseInt(hour, 10);
+    // Parse the Eastern Time date and time
+    const [dayOfWeek, hour] = easternTime.split(",")[0].split(" ");
+    const parsedHour = parseInt(hour, 10);
 
-//     // Update the histogram with occupancy for the current hour
-//     await histogramRef
-//       .child(`${dayOfWeek}/${parsedHour}`)
-//       .set(currentOccupancy);
-//     console.log(
-//       `Updated histogram for ${dayOfWeek}, Hour ${parsedHour}: ${currentOccupancy}`
-//     );
-//   } catch (error) {
-//     console.error("Error updating hourly histogram:", error);
-//   }
-// });
+    // Update the histogram with occupancy for the current hour
+    await histogramRef
+      .child(`${dayOfWeek}/${parsedHour}`)
+      .set(currentOccupancy);
+    console.log(
+      `Updated histogram for ${dayOfWeek}, Hour ${parsedHour}: ${currentOccupancy}`
+    );
+  } catch (error) {
+    console.error("Error updating hourly histogram:", error);
+  }
+});
