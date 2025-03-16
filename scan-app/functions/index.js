@@ -162,7 +162,7 @@ exports.updateOccupancy = onValueWritten(
   }
 );
 
-exports.updateHourlyHistogram = onSchedule("every hour", async (event) => {
+exports.updateHourlyHistogram = onSchedule("0 * * * *", async (event) => {
   const db = admin.database();
   const occupancyRef = db.ref("/stats/occupancy/UCF RWC"); // Change to your location key
   const histogramRef = db.ref("/stats/histogram/UCF RWC");
