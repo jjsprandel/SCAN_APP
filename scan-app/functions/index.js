@@ -166,13 +166,9 @@ exports.updateHourlyHistogram = onSchedule("every hour", async (event) => {
   const db = admin.database();
   const occupancyRef = db.ref("/stats/occupancy/UCF RWC"); // Change to your location key
   const histogramRef = db.ref("/stats/histogram/UCF RWC");
+  const weeksRef = db.ref("/stats/weeks");
 
   try {
-    // Get the current occupancy
-    const occupancySnapshot = await occupancyRef.once("value");
-    const currentOccupancy = occupancySnapshot.val() || 0;
-    console.log("Current Occupancy:", currentOccupancy);
-
     // Get the current time
     const now = new Date();
     const options = {
@@ -189,12 +185,41 @@ exports.updateHourlyHistogram = onSchedule("every hour", async (event) => {
     const [dayOfWeek, hour] = easternTime.split(",")[0].split(" ");
     const parsedHour = parseInt(hour, 10);
 
+    // Get the current week number
+    const weeksSnapshot = await weeksRef.once("value");
+    let weeks = weeksSnapshot.val() || 1;
+
+    // Check if it is Sunday at 12 AM
+    if (dayOfWeek === "Sunday" && parsedHour === 0) {
+      weeks += 1;
+      await weeksRef.set(weeks);
+      console.log("Incremented week number to:", weeks);
+    }
+
+    // Get the current occupancy
+    const occupancySnapshot = await occupancyRef.once("value");
+    const currentOccupancy = occupancySnapshot.val() || 0;
+    console.log("Current Occupancy:", currentOccupancy);
+
     // Update the histogram with occupancy for the current hour
-    await histogramRef
-      .child(`${dayOfWeek}/${parsedHour}`)
-      .set(currentOccupancy);
+    const hourRef = histogramRef.child(`${dayOfWeek}/${parsedHour}`);
+    const hourSnapshot = await hourRef.once("value");
+    const hourData = hourSnapshot.val() || {
+      totalOccupancy: 0,
+      currentStat: 0,
+    };
+
+    // Add the current occupancy to the totalOccupancy
+    hourData.totalOccupancy += currentOccupancy;
+
+    // Calculate the new currentStat as the average occupancy for that hour
+    hourData.currentStat = hourData.totalOccupancy / weeks;
+
+    // Update the histogram data for the current hour
+    await hourRef.set(hourData);
     console.log(
-      `Updated histogram for ${dayOfWeek}, Hour ${parsedHour}: ${currentOccupancy}`
+      `Updated histogram for ${dayOfWeek}, Hour ${parsedHour}:`,
+      hourData
     );
   } catch (error) {
     console.error("Error updating hourly histogram:", error);
