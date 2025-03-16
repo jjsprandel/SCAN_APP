@@ -10,6 +10,7 @@ import PrivateRoute from "./components/PrivateRoute";
 // Lazy load the ActivityLog and UserManagement components
 const ActivityLog = lazy(() => import("./pages/ActivityLog"));
 const UserManagement = lazy(() => import("./pages/UserManagement"));
+const KioskManagement = lazy(() => import("./pages/KioskManagement"));
 
 function App() {
   return (
@@ -34,6 +35,16 @@ function App() {
               <PrivateRoute>
                 <Suspense fallback={<div>Loading...</div>}>
                   <UserManagement />
+                </Suspense>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="kiosk-management"
+            element={
+              <PrivateRoute>
+                <Suspense fallback={<div>Loading...</div>}>
+                  <KioskManagement />
                 </Suspense>
               </PrivateRoute>
             }

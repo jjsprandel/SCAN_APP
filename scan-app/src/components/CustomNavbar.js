@@ -23,6 +23,9 @@ function CustomNavbar() {
             <Nav.Link href="/user-management" className="px-3 nav-link-custom">
               User Management
             </Nav.Link>
+            <Nav.Link href="/kiosk-management" className="px-3 nav-link-custom">
+              Kiosk Management
+            </Nav.Link>
           </>
         )}
       </Nav>
