@@ -1,4 +1,3 @@
-// src/pages/ActivityLog.js
 import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Form, Table, Button } from "react-bootstrap";
 import { ref, onValue } from "firebase/database";
@@ -8,6 +7,7 @@ function ActivityLog() {
   const [activityLog, setActivityLog] = useState([]);
   const [users, setUsers] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
   const rowsPerPage = 20;
 
   useEffect(() => {
@@ -71,10 +71,34 @@ function ActivityLog() {
     setCurrentPage((prevPage) => Math.max(prevPage - 1, 1));
   };
 
+  const handleSearchChange = (event) => {
+    setSearchQuery(event.target.value);
+    setCurrentPage(1); // Reset to the first page on new search
+  };
+
+  // Filter the activity log based on the search query
+  const filteredActivityLog = activityLog.filter((entry) => {
+    const user = users[entry.userId] || {};
+    const fullName = `${user.firstName || ""} ${
+      user.lastName || ""
+    }`.toLowerCase();
+    const query = searchQuery.toLowerCase();
+    return (
+      entry.userId.includes(query) ||
+      fullName.includes(query) ||
+      entry.action.toLowerCase().includes(query) ||
+      entry.location.toLowerCase().includes(query) ||
+      formatTimestamp(entry.timestamp).toLowerCase().includes(query)
+    );
+  });
+
   // Calculate the rows to display based on the current page
   const indexOfLastRow = currentPage * rowsPerPage;
   const indexOfFirstRow = indexOfLastRow - rowsPerPage;
-  const currentRows = activityLog.slice(indexOfFirstRow, indexOfLastRow);
+  const currentRows = filteredActivityLog.slice(
+    indexOfFirstRow,
+    indexOfLastRow
+  );
 
   return (
     <Container fluid className="d-flex flex-column flex-grow-1 overflow-auto">
@@ -83,7 +107,12 @@ function ActivityLog() {
         <Col md={3}>
           <Form>
             <Form.Group controlId="search">
-              <Form.Control type="text" placeholder="Search..." />
+              <Form.Control
+                type="text"
+                placeholder="Search..."
+                value={searchQuery}
+                onChange={handleSearchChange}
+              />
             </Form.Group>
           </Form>
         </Col>
@@ -130,7 +159,7 @@ function ActivityLog() {
             <Button
               variant="secondary"
               onClick={handleNextPage}
-              disabled={indexOfLastRow >= activityLog.length}
+              disabled={indexOfLastRow >= filteredActivityLog.length}
             >
               Next
             </Button>
