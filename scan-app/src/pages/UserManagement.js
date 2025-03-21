@@ -1,4 +1,3 @@
-// src/pages/UserManagement.js
 import React, { useState, useEffect } from "react";
 import {
   Container,
@@ -18,6 +17,7 @@ function UserManagement() {
   const [isEditMode, setIsEditMode] = useState(false);
   const [editedProfileData, setEditedProfileData] = useState({});
   const [newUserId, setNewUserId] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const usersRef = ref(database, "users");
@@ -130,13 +130,36 @@ function UserManagement() {
     setIsEditMode(false);
   };
 
+  const handleSearchChange = (event) => {
+    setSearchQuery(event.target.value);
+  };
+
+  // Filter the users based on the search query
+  const filteredUsers = users.filter((user) => {
+    const fullName = `${user.firstName || ""} ${
+      user.lastName || ""
+    }`.toLowerCase();
+    const query = searchQuery.toLowerCase();
+    return (
+      user.userId.includes(query) ||
+      fullName.includes(query) ||
+      user.checkInStatus.toLowerCase().includes(query) ||
+      user.location.toLowerCase().includes(query)
+    );
+  });
+
   return (
     <Container fluid className="d-flex flex-column flex-grow-1 overflow-auto">
       <Row className="mt-4">
         <Col md={3}>
           <Form>
             <Form.Group controlId="search">
-              <Form.Control type="text" placeholder="Search..." />
+              <Form.Control
+                type="text"
+                placeholder="Search..."
+                value={searchQuery}
+                onChange={handleSearchChange}
+              />
             </Form.Group>
           </Form>
         </Col>
@@ -154,7 +177,7 @@ function UserManagement() {
               </tr>
             </thead>
             <tbody>
-              {users.map((item, index) => (
+              {filteredUsers.map((item, index) => (
                 <tr
                   key={index}
                   onClick={() => handleRowClick(item)}
