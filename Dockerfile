@@ -10,7 +10,7 @@ COPY package*.json ./
 # Install dependencies
 RUN npm install
 
-# If we're deploying, install firebase tools
+# If we're deploying, install firebase-tools (only for GitHub Actions)
 ARG GITHUB_ACTIONS
 RUN if [ "$GITHUB_ACTIONS" = "true" ]; then npm install -g firebase-tools; fi
 
