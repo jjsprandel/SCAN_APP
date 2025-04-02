@@ -1,8 +1,11 @@
-* -text
+# Set text files to use LF (Unix-style) line endings
+* text=auto
 
-# Prevent line ending conversion for KiCad project files
-*.kicad_pcb text eol=lf
-*.kicad_sch text eol=lf
-*.kicad_prl text eol=lf
-*.kicad_mod text eol=lf
-*.kicad_sym text eol=lf
+# Force the README.md file to always use LF line endings
+README.md text eol=lf
+
+# Force all shell scripts to use LF line endings
+*.sh text eol=lf
+
+# Force all Windows batch files to use CRLF line endings
+*.bat text eol=crlf
