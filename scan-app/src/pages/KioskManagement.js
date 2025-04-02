@@ -18,7 +18,7 @@ function KioskManagement() {
       const data = snapshot.val();
       const kiosksArray = data
         ? Object.keys(data).map((key) => ({
-            value: data[key].id,
+            value: key,
             label: data[key].name,
           }))
         : [];
