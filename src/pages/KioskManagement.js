@@ -41,7 +41,7 @@ function KioskManagement() {
   const handleUpdateFirmware = () => {
     console.log("Update Firmware button clicked");
     console.log("Selected Kiosks:", selectedKiosks);
-    console.log("Selected VersionSSS:", selectedVersion);
+    console.log("Selected Version:", selectedVersion);
 
     const client = mqtt.connect(
       "wss://0ec065087cf84d309f1c73b00c9441f8.s1.eu.hivemq.cloud:8884/mqtt",
@@ -103,7 +103,7 @@ function KioskManagement() {
               <h3 className="mb-4">Update Firmware</h3>
               <Form>
                 <Form.Group controlId="selectKiosks">
-                  <Form.Label>Select Kiosks</Form.Label>
+                  <Form.Label>Select KiosksSSS</Form.Label>
                   <Select
                     isMulti
                     options={[customSelectAllOption, ...kiosks]}
