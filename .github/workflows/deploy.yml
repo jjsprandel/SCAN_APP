@@ -1,0 +1,26 @@
+name: Deploy to Firebase
+
+on:
+  push:
+    branches:
+      - main  # Trigger on pushes to the main branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production  # Use the production environment
+
+    steps:
+      # Checkout the repository
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Build the Docker image and deploy using Firebase
+      - name: Build and Deploy with Docker
+        run: |
+          # Build the Docker image, passing the GITHUB_ACTIONS variable
+          docker build --build-arg GITHUB_ACTIONS=true -t my-app .
+          
+          # Run the Docker container, passing the Firebase token and deploying the app
+          docker run --rm -e FIREBASE_TOKEN=${{ secrets.FIREBASE_TOKEN }} my-app npm run build && firebase deploy --token $FIREBASE_TOKEN
+
