@@ -5,7 +5,7 @@ FROM node:22.14.0
 WORKDIR /app
 
 # Copy package.json and package-lock.json (or npm-shrinkwrap.json)
-COPY package*.json ./
+COPY package*.json ./ 
 
 # Install project dependencies
 RUN npm install
@@ -19,6 +19,8 @@ RUN npm run build
 # Install Firebase CLI globally
 RUN npm install -g firebase-tools
 
-# Define the command to deploy to Firebase
-CMD firebase deploy --token $FIREBASE_TOKEN
+# Set the environment variable for Firebase authentication
+ENV GOOGLE_APPLICATION_CREDENTIALS=/app/firebase-service-account.json
 
+# Define the command to deploy to Firebase
+CMD firebase deploy
