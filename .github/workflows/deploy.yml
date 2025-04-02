@@ -24,8 +24,13 @@ jobs:
         run: |
           docker build --build-arg GITHUB_ACTIONS=true -t my-app .
 
+      # Create the Firebase service account JSON file from the secret
+      - name: Set up Firebase Authentication
+        run: |
+          echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}" > $GITHUB_WORKSPACE/firebase-service-account.json
+          export GOOGLE_APPLICATION_CREDENTIALS=$GITHUB_WORKSPACE/firebase-service-account.json
+
       # Run the Docker container to deploy
       - name: Run Docker Container to Deploy
         run: |
-          docker run --rm -e FIREBASE_TOKEN=${{ secrets.FIREBASE_TOKEN }} my-app
-
+          docker run --rm -e GOOGLE_APPLICATION_CREDENTIALS=$GITHUB_WORKSPACE/firebase-service-account.json my-app
