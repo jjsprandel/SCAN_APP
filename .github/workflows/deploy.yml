@@ -23,6 +23,11 @@ jobs:
       - name: Build Docker Image
         run: |
           docker build --build-arg GITHUB_ACTIONS=true -t my-app .
+      
+      - name: Prepare Google Application Credentials
+        shell: bash
+        run: |
+          echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}" | base64 --decode > "google-application-credentials.json"
 
       # Set up Firebase Authentication by creating the service account JSON file
       - name: Set up Firebase Authentication
