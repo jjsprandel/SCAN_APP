@@ -19,7 +19,7 @@ RUN npm run build
 # Install Firebase CLI globally
 RUN npm install -g firebase-tools
 
-# Set the environment variable for Firebase authentication
+# Set the environment variable for Firebase authentication (using service account JSON file)
 ENV GOOGLE_APPLICATION_CREDENTIALS=/app/firebase-service-account.json
 
 # Define the command to deploy to Firebase
