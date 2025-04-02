@@ -103,7 +103,7 @@ function KioskManagement() {
               <h3 className="mb-4">Update Firmware</h3>
               <Form>
                 <Form.Group controlId="selectKiosks">
-                  <Form.Label>Select KiosksSSS</Form.Label>
+                  <Form.Label>Select Kiosks</Form.Label>
                   <Select
                     isMulti
                     options={[customSelectAllOption, ...kiosks]}
