@@ -41,7 +41,7 @@ function KioskManagement() {
   const handleUpdateFirmware = () => {
     console.log("Update Firmware button clicked");
     console.log("Selected Kiosks:", selectedKiosks);
-    console.log("Selected Version:", selectedVersion);
+    console.log("Selected VersionSSS:", selectedVersion);
 
     const client = mqtt.connect(
       "wss://0ec065087cf84d309f1c73b00c9441f8.s1.eu.hivemq.cloud:8884/mqtt",
