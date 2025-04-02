@@ -15,12 +15,19 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # Build and Deploy with Docker
+      # Install Firebase CLI on the host system for deployment
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools
+
+      # Build the Docker image and deploy using Firebase inside the container
       - name: Build and Deploy with Docker
         run: |
           # Build the Docker image, passing the GITHUB_ACTIONS variable
           docker build --build-arg GITHUB_ACTIONS=true -t my-app .
 
-          # Run the Docker container, passing the Firebase token, running npm run build, and then deploying
-          docker run --rm -e FIREBASE_TOKEN=${{ secrets.FIREBASE_TOKEN }} my-app npm run build && npm run deploy
+          # Run the Docker container, passing the Firebase token and running npm run build
+          docker run --rm -e FIREBASE_TOKEN=${{ secrets.FIREBASE_TOKEN }} my-app npm run build
 
+      # Deploy to Firebase using the Firebase CLI in the GitHub Actions environment
+      - name: Deploy to Firebase
+        run: firebase deploy --token ${{ secrets.FIREBASE_TOKEN }}
