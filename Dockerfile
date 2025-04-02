@@ -4,21 +4,21 @@ FROM node:22.14.0
 # Set the working directory inside the container
 WORKDIR /app
 
-# Copy package.json and package-lock.json (if available) to the container
+# Copy package.json and package-lock.json (or npm-shrinkwrap.json)
 COPY package*.json ./
 
-# Install dependencies
+# Install project dependencies
 RUN npm install
 
-# If we're deploying, install firebase tools
-ARG GITHUB_ACTIONS
-RUN if [ "$GITHUB_ACTIONS" = "true" ]; then npm install -g firebase-tools; fi
-
-# Copy the rest of the app's files into the container
+# Copy the rest of the app files
 COPY . .
 
-# Expose the app's port for local development
-EXPOSE 3000
+# Build the React app for production
+RUN npm run build
 
-# If we're running locally, start the app
-CMD if [ -z "$GITHUB_ACTIONS" ]; then npm start; fi
+# Install Firebase CLI globally
+RUN npm install -g firebase-tools
+
+# Define the command to deploy to Firebase
+CMD firebase deploy --token $FIREBASE_TOKEN
+

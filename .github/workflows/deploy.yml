@@ -1,4 +1,4 @@
-name: Deploy to Firebase
+name: Build and Deploy to Firebase
 
 on:
   push:
@@ -15,29 +15,17 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # Install Firebase CLI on the host system for deployment
-      - name: Install Firebase CLI
-        run: npm install -g firebase-tools
+      # Set up Docker build environment
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
-      # Install dependencies for the main React app
-      - name: Install Dependencies for React App
-        run: npm install
-
-      # Install dependencies for Firebase functions
-      - name: Install Dependencies for Firebase Functions
+      # Build the Docker image
+      - name: Build Docker Image
         run: |
-          cd functions
-          npm install
-
-      # Build the Docker image and deploy using Firebase inside the container
-      - name: Build and Deploy with Docker
-        run: |
-          # Build the Docker image, passing the GITHUB_ACTIONS variable
           docker build --build-arg GITHUB_ACTIONS=true -t my-app .
 
-          # Run the Docker container, passing the Firebase token and running npm run build
-          docker run --rm -e FIREBASE_TOKEN=${{ secrets.FIREBASE_TOKEN }} my-app npm run build
+      # Run the Docker container to deploy
+      - name: Run Docker Container to Deploy
+        run: |
+          docker run --rm -e FIREBASE_TOKEN=${{ secrets.FIREBASE_TOKEN }} my-app
 
-      # Deploy to Firebase using the Firebase CLI in the GitHub Actions environment
-      - name: Deploy to Firebase
-        run: firebase deploy --token ${{ secrets.FIREBASE_TOKEN }}
