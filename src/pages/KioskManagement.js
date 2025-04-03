@@ -59,7 +59,7 @@ function KioskManagement() {
         const message = JSON.stringify({
           firmware_version: selectedVersion.value,
           download_url: `https://github.com/jjsprandel/SCAN/releases/download/${selectedVersion.value}/SCAN.bin`,
-        }).replace(/\"/g, ''); // Removes all double quotes
+        }).replace(/"/g, ''); // Removes all double quotes
         
         console.log(`Publishing to topic ${topic}:`, message);
 
