@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Container, Row, Col, Card, Form, Button, Alert, OverlayTrigger, Tooltip } from "react-bootstrap";
 import { ref, onValue } from "firebase/database";
 import { database, storage } from "../services/Firebase";
@@ -6,6 +6,43 @@ import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage
 import Select from "react-select";
 import mqtt from "mqtt";
 import { useDropzone } from "react-dropzone";
+
+// Create a single message handler function outside the component
+const createMessageHandler = (client, setMqttLogs, mqttLogsRef) => {
+  return (topic, message) => {
+    console.log("Message handler triggered for topic:", topic);
+    const macAddress = topic.split("/")[1];
+    const messageText = message.toString();
+    const timestamp = Date.now();
+    
+    // Update the ref first
+    if (!mqttLogsRef.current[macAddress]) {
+      mqttLogsRef.current[macAddress] = [];
+    }
+    
+    // Add the new message at the beginning with timestamp
+    mqttLogsRef.current[macAddress].unshift({ text: messageText, timestamp });
+    
+    // Keep only the last 15 messages
+    if (mqttLogsRef.current[macAddress].length > 15) {
+      mqttLogsRef.current[macAddress].pop();
+    }
+    
+    // Update the state with the new logs
+    setMqttLogs({ ...mqttLogsRef.current });
+
+    // Set up individual timer for this specific message
+    setTimeout(() => {
+      if (mqttLogsRef.current[macAddress]) {
+        // Only remove this specific message
+        mqttLogsRef.current[macAddress] = mqttLogsRef.current[macAddress].filter(
+          msg => msg.timestamp !== timestamp
+        );
+        setMqttLogs({ ...mqttLogsRef.current });
+      }
+    }, 10000);
+  };
+};
 
 function KioskManagement() {
   const [kiosks, setKiosks] = useState([]);
@@ -19,6 +56,10 @@ function KioskManagement() {
   const [success, setSuccess] = useState(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [kiosksData, setKiosksData] = useState(null);
+  const [mqttLogs, setMqttLogs] = useState({});
+  const mqttClientRef = useRef(null);
+  const subscribedTopicsRef = useRef(new Set());
+  const mqttLogsRef = useRef({});
 
   useEffect(() => {
     // Fetch kiosks from the database
@@ -48,9 +89,123 @@ function KioskManagement() {
       })
       .catch((error) => console.error("Error fetching releases:", error));
 
-    // Cleanup subscription on unmount
-    return () => unsubscribe();
+    return () => {
+      unsubscribe();
+    };
   }, []);
+
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.innerHTML = `
+      .new-message {
+        animation: highlight 2s ease-in-out;
+      }
+      @keyframes highlight {
+        0% { background-color: #d1e7dd; }
+        100% { background-color: transparent; }
+      }
+    `;
+    document.head.appendChild(style);
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
+
+  // Separate function to create MQTT client
+  const createMqttClient = () => {
+    console.log("Creating new MQTT client");
+    const client = mqtt.connect(
+      "wss://0ec065087cf84d309f1c73b00c9441f8.s1.eu.hivemq.cloud:8884/mqtt",
+      {
+        username: "admin",
+        password: "Password1234",
+        clean: true,
+        reconnectPeriod: 0,
+        clientId: 'kiosk_management_' + Math.random().toString(16).substr(2, 8),
+        protocolVersion: 4,
+        protocol: 'wss',
+        rejectUnauthorized: false
+      }
+    );
+
+    // Set up message listener
+    const messageHandler = createMessageHandler(client, setMqttLogs, mqttLogsRef);
+    client.on("message", messageHandler);
+
+    client.on("connect", () => {
+      console.log("MQTT client connected for status updates");
+      // Subscribe to all topics at once
+      const topics = Object.keys(kiosksData || {}).map(macAddress => `kiosks/${macAddress}/status`);
+      topics.forEach(topic => {
+        console.log(`Subscribing to topic: ${topic}`);
+        client.subscribe(topic, { qos: 0, retain: false }, (err) => {
+          if (err) {
+            console.error(`Failed to subscribe to ${topic}:`, err);
+          } else {
+            console.log(`Successfully subscribed to ${topic}`);
+            subscribedTopicsRef.current.add(topic);
+          }
+        });
+      });
+    });
+
+    return client;
+  };
+
+  // Separate useEffect for MQTT client
+  useEffect(() => {
+    if (!kiosksData) return;
+
+    // Only create the client if it doesn't exist
+    if (!mqttClientRef.current) {
+      mqttClientRef.current = createMqttClient();
+    } else if (mqttClientRef.current.connected) {
+      // If client exists and is connected, update subscriptions
+      console.log("Updating MQTT subscriptions");
+      const topics = Object.keys(kiosksData).map(macAddress => `kiosks/${macAddress}/status`);
+      
+      // Unsubscribe from topics that are no longer needed
+      subscribedTopicsRef.current.forEach(topic => {
+        if (!topics.includes(topic)) {
+          console.log(`Unsubscribing from topic: ${topic}`);
+          mqttClientRef.current.unsubscribe(topic);
+          subscribedTopicsRef.current.delete(topic);
+        }
+      });
+      
+      // Subscribe to new topics
+      topics.forEach(topic => {
+        if (!subscribedTopicsRef.current.has(topic)) {
+          console.log(`Subscribing to topic: ${topic}`);
+          mqttClientRef.current.subscribe(topic, { qos: 0, retain: false }, (err) => {
+            if (err) {
+              console.error(`Failed to subscribe to ${topic}:`, err);
+            } else {
+              console.log(`Successfully subscribed to ${topic}`);
+              subscribedTopicsRef.current.add(topic);
+            }
+          });
+        }
+      });
+    }
+
+    // Cleanup function
+    return () => {
+      if (mqttClientRef.current) {
+        console.log("Cleaning up MQTT client");
+        // Unsubscribe from all topics
+        subscribedTopicsRef.current.forEach(topic => {
+          mqttClientRef.current.unsubscribe(topic);
+        });
+        // End the client connection
+        mqttClientRef.current.end();
+        // Clear the refs
+        mqttClientRef.current = null;
+        subscribedTopicsRef.current.clear();
+        mqttLogsRef.current = {};
+      }
+    };
+  }, [kiosksData]); // Add kiosksData as dependency
 
   const onDrop = (acceptedFiles) => {
     const file = acceptedFiles[0];
@@ -81,51 +236,41 @@ function KioskManagement() {
       let firmwareUrl;
       if (updateMethod === "github") {
         firmwareUrl = `https://github.com/jjsprandel/SCAN/releases/download/${selectedVersion.value}/SCAN.bin`;
-        setUploadProgress(50); // GitHub URL is instant
+        setUploadProgress(50);
       } else if (updateMethod === "custom") {
         if (!customFirmware) {
           throw new Error("Please select a firmware file");
         }
 
-        // Upload to Firebase Storage
         const fileRef = storageRef(storage, `firmware/${Date.now()}-${customFirmware.name}`);
         await uploadBytes(fileRef, customFirmware);
-        setUploadProgress(50); // File upload complete
+        setUploadProgress(50);
         firmwareUrl = await getDownloadURL(fileRef);
-        setUploadProgress(75); // URL retrieved
+        setUploadProgress(75);
       }
 
       if (!firmwareUrl) {
         throw new Error("No firmware URL available");
       }
 
-      const client = mqtt.connect(
-        "wss://0ec065087cf84d309f1c73b00c9441f8.s1.eu.hivemq.cloud:8884/mqtt",
-        {
-          username: "admin",
-          password: "Password1234",
-        }
-      );
+      setUploadProgress(90);
 
-      client.on("connect", () => {
-        console.log("MQTT client connected");
-        setUploadProgress(90); // MQTT connected
+      let messagesSent = 0;
+      selectedKiosks.forEach((kiosk) => {
+        const topic = `kiosks/${kiosk.value}/update`;
+        const message = JSON.stringify({
+          firmware_version: updateMethod === "github" ? selectedVersion.value : "custom",
+          download_url: firmwareUrl,
+        }).replace(/"/g, '');
+        
+        console.log(`Publishing to topic ${topic}:`, message);
 
-        let messagesSent = 0;
-        selectedKiosks.forEach((kiosk) => {
-          const topic = `kiosks/${kiosk.value}/update`;
-          const message = JSON.stringify({
-            firmware_version: updateMethod === "github" ? selectedVersion.value : "custom",
-            download_url: firmwareUrl,
-          }).replace(/"/g, ''); // Removes all double quotes
-          
-          console.log(`Publishing to topic ${topic}:`, message);
-
-          client.publish(topic, message, (err) => {
-            if (err) {
-              console.error(`Failed to publish message to ${topic}:`, err);
-            } else {
-              console.log(`Message published to ${topic}:`, message);
+        if (mqttClientRef.current && mqttClientRef.current.connected) {
+          mqttClientRef.current.publish(topic, message, (err) => {
+          if (err) {
+            console.error(`Failed to publish message to ${topic}:`, err);
+          } else {
+            console.log(`Message published to ${topic}:`, message);
               messagesSent++;
               if (messagesSent === selectedKiosks.length) {
                 setUploadProgress(100);
@@ -141,16 +286,9 @@ function KioskManagement() {
               }
             }
           });
-        });
-
-        client.end();
-      });
-
-      client.on("error", (err) => {
-        console.error("MQTT client error:", err);
-        setError("Failed to connect to MQTT server");
-        setIsUploading(false);
-        setUploadProgress(0);
+        } else {
+          throw new Error("MQTT client not connected");
+        }
       });
     } catch (error) {
       console.error("Failed to update firmware:", error);
@@ -192,7 +330,10 @@ function KioskManagement() {
                   {Object.entries(kiosksData).map(([id, kiosk]) => (
                     <div key={id} className="col-md-6">
                       <div className="card h-100 border-0 shadow-sm hover-shadow" 
-                           style={{ transition: 'all 0.3s ease' }}>
+                           style={{ 
+                             transition: 'all 0.5s ease',
+                             backgroundColor: kiosk.active ? 'white' : '#dee2e6'
+                           }}>
                         <div className="card-body">
                           <div className="d-flex justify-content-between align-items-center mb-3">
                             <OverlayTrigger
@@ -211,9 +352,10 @@ function KioskManagement() {
                                 {kiosk.name}
                               </h5>
                             </OverlayTrigger>
-                            <span className={`badge ${kiosk.status === 'online' ? 'bg-success' : 'bg-danger'} px-3 py-2`}>
-                              <i className={`fas fa-${kiosk.status === 'online' ? 'signal' : 'power-off'} me-1`}></i>
-                              {kiosk.status}
+                            <span className={`badge ${kiosk.active ? 'bg-success' : 'bg-secondary'} px-3 py-2`}
+                                  style={{ transition: 'all 0.5s ease' }}>
+                              <i className={`fas fa-${kiosk.active ? 'signal' : 'power-off'} me-1`}></i>
+                              {kiosk.active ? 'Active' : 'Inactive'}
                             </span>
                           </div>
                           <div className="row g-3">
@@ -223,7 +365,8 @@ function KioskManagement() {
                                   <i className="fas fa-map-marker-alt" style={{ width: '16px' }}></i>
                                   <span className="ms-2">Location</span>
                                 </small>
-                                <p className="mb-0 fw-medium ms-4">{kiosk.location}</p>
+                                <p className={`mb-0 fw-medium ms-4 ${!kiosk.active ? 'text-muted' : ''}`}
+                                   style={{ transition: 'color 0.5s ease' }}>{kiosk.location}</p>
                               </div>
                             </div>
                             <div className="col-6">
@@ -232,15 +375,13 @@ function KioskManagement() {
                                   <i className="fas fa-wifi text-primary" style={{ width: '16px' }}></i>
                                   <span className="ms-2">Network</span>
                                 </small>
-                                <p className="mb-0 fw-medium ms-4">
-                                  {kiosk.networkSSID ? (
-                                    <span>
-                                      <i className="fas fa-wifi text-success me-1"></i>
+                                <p className="mb-0 fw-medium ms-4" style={{ transition: 'color 0.5s ease' }}>
+                                  {kiosk.networkSSID && kiosk.active ? (
+                                    <span className="text-success">
                                       {kiosk.networkSSID}
                                     </span>
                                   ) : (
                                     <span className="text-muted">
-                                      <i className="fas fa-wifi-slash me-1"></i>
                                       Not Connected
                                     </span>
                                   )}
@@ -266,21 +407,25 @@ function KioskManagement() {
                                      style={{ height: '10px', backgroundColor: '#e9ecef', borderRadius: '5px' }}>
                                   <div 
                                     className={`progress-bar ${
+                                      !kiosk.active ? 'bg-secondary' :
                                       kiosk.batteryLevel > 60 ? 'bg-success' :
                                       kiosk.batteryLevel > 20 ? 'bg-warning' :
                                       'bg-danger'
                                     }`}
                                     role="progressbar"
                                     style={{ 
-                                      width: `${kiosk.batteryLevel}%`,
-                                      transition: 'width 0.3s ease'
+                                      width: `${kiosk.active ? kiosk.batteryLevel : 0}%`,
+                                      transition: 'all 0.5s ease'
                                     }}
-                                    aria-valuenow={kiosk.batteryLevel}
+                                    aria-valuenow={kiosk.active ? kiosk.batteryLevel : 0}
                                     aria-valuemin="0"
                                     aria-valuemax="100"
                                   ></div>
                                 </div>
-                                <span className="fw-medium" style={{ minWidth: '48px' }}>{kiosk.batteryLevel}%</span>
+                                <span className={`fw-medium ${!kiosk.active ? 'text-muted' : ''}`} 
+                                      style={{ minWidth: '48px', transition: 'color 0.5s ease' }}>
+                                  {kiosk.active ? `${kiosk.batteryLevel}%` : 'N/A'}
+                                </span>
                               </div>
                             </div>
                             <div className="col-12">
@@ -289,33 +434,40 @@ function KioskManagement() {
                                 Power Status
                               </small>
                               <div className="d-flex align-items-center p-2 rounded" 
-                                   style={{ backgroundColor: kiosk.charging ? '#fff3cd' : '#f8f9fa' }}>
-                                <div className={`d-inline-flex align-items-center justify-content-center rounded-circle me-2 ${kiosk.charging ? 'bg-warning' : 'bg-light'}`} 
+                                   style={{ 
+                                     backgroundColor: !kiosk.active ? '#f8f9fa' : kiosk.charging ? '#fff3cd' : '#f8f9fa',
+                                     transition: 'all 0.5s ease'
+                                   }}>
+                                <div className={`d-inline-flex align-items-center justify-content-center rounded-circle me-2 ${!kiosk.active ? 'bg-light' : kiosk.charging ? 'bg-warning' : 'bg-light'}`} 
                                      style={{ 
                                        width: '32px', 
                                        height: '32px', 
                                        border: '2px solid', 
-                                       borderColor: kiosk.charging ? '#ffc107' : '#dee2e6',
-                                       transition: 'all 0.3s ease'
+                                       borderColor: !kiosk.active ? '#dee2e6' : kiosk.charging ? '#ffc107' : '#dee2e6',
+                                       transition: 'all 0.5s ease'
                                      }}>
-                                  <i className={`fas fa-bolt ${kiosk.charging ? 'text-dark' : 'text-muted'}`}></i>
+                                  <i className={`fas fa-bolt ${!kiosk.active ? 'text-muted' : kiosk.charging ? 'text-dark' : 'text-muted'}`}
+                                     style={{ transition: 'color 0.5s ease' }}></i>
                                 </div>
                                 <div>
-                                  <div className="fw-medium mb-1">
-                                    {kiosk.charging ? (
+                                  <div className="fw-medium mb-1" style={{ transition: 'color 0.5s ease' }}>
+                                    {!kiosk.active ? (
+                                      <span className="text-muted">Inactive</span>
+                                    ) : kiosk.charging ? (
                                       <>
                                         <span className="text-warning">USB-PD Charging</span>
-                                        <i className="fas fa-usb ms-2 text-primary"></i>
+                                        <i className="fas fa-bolt ms-2 text-warning"></i>
                                       </>
                                     ) : (
                                       <span className="text-muted">On Battery</span>
                                     )}
                                   </div>
                                   <div>
-                                    <small className="text-muted">
-                                      {kiosk.charging ? (
+                                    <small className="text-muted" style={{ transition: 'color 0.5s ease' }}>
+                                      {!kiosk.active ? (
+                                        'Device not responding'
+                                      ) : kiosk.charging ? (
                                         <>
-                                          <i className="fas fa-bolt me-1 text-warning"></i>
                                           {kiosk.USB_PD_contract_v}V/{kiosk.USB_PD_contract_i}A ({(kiosk.USB_PD_contract_v * kiosk.USB_PD_contract_i).toFixed(0)}W)
                                         </>
                                       ) : (
@@ -328,6 +480,37 @@ function KioskManagement() {
                                   </div>
                                 </div>
                               </div>
+                            </div>
+                            <div className="col-12">
+                              {kiosk.active && (
+                                <>
+                                  <small className="text-muted d-block mb-1">
+                                    <i className="fas fa-info-circle me-1"></i>
+                                    Status Log
+                                  </small>
+                                  <div className="mb-0 fw-medium" style={{ 
+                                    maxHeight: '100px', 
+                                    overflowY: 'auto', 
+                                    border: '1px solid #dee2e6', 
+                                    borderRadius: '5px', 
+                                    padding: '5px',
+                                    backgroundColor: 'white'
+                                  }}>
+                                    {mqttLogs[id] && mqttLogs[id].length > 0 ? (
+                                      mqttLogs[id].map((msg, index) => (
+                                        <div 
+                                          key={`${id}-${typeof msg === 'string' ? msg : msg.timestamp}`}
+                                          className={`text-muted small py-1 ${index === 0 ? 'new-message' : ''}`}
+                                        >
+                                          {typeof msg === 'string' ? msg : msg.text}
+                                        </div>
+                                      ))
+                                    ) : (
+                                      <div className="text-muted small">No recent messages</div>
+                                    )}
+                                  </div>
+                                </>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -420,10 +603,10 @@ function KioskManagement() {
                 {updateMethod === "github" ? (
                   <Form.Group controlId="selectVersion" className="mb-4">
                     <Form.Label className="fw-medium">Select Release Version</Form.Label>
-                    <Select
-                      options={releaseVersions}
-                      value={selectedVersion}
-                      onChange={setSelectedVersion}
+                  <Select
+                    options={releaseVersions}
+                    value={selectedVersion}
+                    onChange={setSelectedVersion}
                       className="shadow-sm"
                       styles={{
                         control: (base) => ({
@@ -434,8 +617,8 @@ function KioskManagement() {
                           }
                         })
                       }}
-                    />
-                  </Form.Group>
+                  />
+                </Form.Group>
                 ) : (
                   <Form.Group controlId="customFirmware" className="mb-4">
                     <Form.Label className="fw-medium">Upload Firmware File</Form.Label>
@@ -513,7 +696,7 @@ function KioskManagement() {
                   ) : (
                     <>
                       <i className="fas fa-sync-alt me-2"></i>
-                      Update Firmware
+                  Update Firmware
                     </>
                   )}
                 </Button>
