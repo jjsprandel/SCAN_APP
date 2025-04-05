@@ -44,6 +44,47 @@ const createMessageHandler = (client, setMqttLogs, mqttLogsRef) => {
   };
 };
 
+// Create MQTT client function outside the component
+const createMqttClient = (kiosksData, subscribedTopicsRef, setMqttLogs, mqttLogsRef) => {
+  console.log("Creating new MQTT client");
+  const client = mqtt.connect(
+    "wss://0ec065087cf84d309f1c73b00c9441f8.s1.eu.hivemq.cloud:8884/mqtt",
+    {
+      username: "admin",
+      password: "Password1234",
+      clean: true,
+      reconnectPeriod: 0,
+      clientId: 'kiosk_management_' + Math.random().toString(16).substr(2, 8),
+      protocolVersion: 4,
+      protocol: 'wss',
+      rejectUnauthorized: false
+    }
+  );
+
+  // Set up message listener
+  const messageHandler = createMessageHandler(client, setMqttLogs, mqttLogsRef);
+  client.on("message", messageHandler);
+
+  client.on("connect", () => {
+    console.log("MQTT client connected for status updates");
+    // Subscribe to all topics at once
+    const topics = Object.keys(kiosksData || {}).map(macAddress => `kiosks/${macAddress}/status`);
+    topics.forEach(topic => {
+      console.log(`Subscribing to topic: ${topic}`);
+      client.subscribe(topic, { qos: 0, retain: false }, (err) => {
+        if (err) {
+          console.error(`Failed to subscribe to ${topic}:`, err);
+        } else {
+          console.log(`Successfully subscribed to ${topic}`);
+          subscribedTopicsRef.current.add(topic);
+        }
+      });
+    });
+  });
+
+  return client;
+};
+
 function KioskManagement() {
   const [kiosks, setKiosks] = useState([]);
   const [selectedKiosks, setSelectedKiosks] = useState([]);
@@ -111,47 +152,6 @@ function KioskManagement() {
     };
   }, []);
 
-  // Separate function to create MQTT client
-  const createMqttClient = () => {
-    console.log("Creating new MQTT client");
-    const client = mqtt.connect(
-      "wss://0ec065087cf84d309f1c73b00c9441f8.s1.eu.hivemq.cloud:8884/mqtt",
-      {
-        username: "admin",
-        password: "Password1234",
-        clean: true,
-        reconnectPeriod: 0,
-        clientId: 'kiosk_management_' + Math.random().toString(16).substr(2, 8),
-        protocolVersion: 4,
-        protocol: 'wss',
-        rejectUnauthorized: false
-      }
-    );
-
-    // Set up message listener
-    const messageHandler = createMessageHandler(client, setMqttLogs, mqttLogsRef);
-    client.on("message", messageHandler);
-
-    client.on("connect", () => {
-      console.log("MQTT client connected for status updates");
-      // Subscribe to all topics at once
-      const topics = Object.keys(kiosksData || {}).map(macAddress => `kiosks/${macAddress}/status`);
-      topics.forEach(topic => {
-        console.log(`Subscribing to topic: ${topic}`);
-        client.subscribe(topic, { qos: 0, retain: false }, (err) => {
-          if (err) {
-            console.error(`Failed to subscribe to ${topic}:`, err);
-          } else {
-            console.log(`Successfully subscribed to ${topic}`);
-            subscribedTopicsRef.current.add(topic);
-          }
-        });
-      });
-    });
-
-    return client;
-  };
-
   // Separate useEffect for MQTT client
   useEffect(() => {
     if (!kiosksData) return;
@@ -162,7 +162,7 @@ function KioskManagement() {
 
     // Only create the client if it doesn't exist
     if (!currentMqttClient) {
-      mqttClientRef.current = createMqttClient();
+      mqttClientRef.current = createMqttClient(kiosksData, subscribedTopicsRef, setMqttLogs, mqttLogsRef);
     } else if (currentMqttClient.connected) {
       // If client exists and is connected, update subscriptions
       console.log("Updating MQTT subscriptions");
@@ -209,7 +209,7 @@ function KioskManagement() {
         mqttLogsRef.current = {};
       }
     };
-  }, [kiosksData]); // Remove createMqttClient from dependencies since it's defined in the component
+  }, [kiosksData]); // Now we only need kiosksData as a dependency
 
   const onDrop = (acceptedFiles) => {
     const file = acceptedFiles[0];
