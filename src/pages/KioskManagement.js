@@ -156,33 +156,37 @@ function KioskManagement() {
   useEffect(() => {
     if (!kiosksData) return;
 
+    // Store ref values in variables to use in cleanup
+    const currentSubscribedTopics = subscribedTopicsRef.current;
+    const currentMqttClient = mqttClientRef.current;
+
     // Only create the client if it doesn't exist
-    if (!mqttClientRef.current) {
+    if (!currentMqttClient) {
       mqttClientRef.current = createMqttClient();
-    } else if (mqttClientRef.current.connected) {
+    } else if (currentMqttClient.connected) {
       // If client exists and is connected, update subscriptions
       console.log("Updating MQTT subscriptions");
       const topics = Object.keys(kiosksData).map(macAddress => `kiosks/${macAddress}/status`);
       
       // Unsubscribe from topics that are no longer needed
-      subscribedTopicsRef.current.forEach(topic => {
+      currentSubscribedTopics.forEach(topic => {
         if (!topics.includes(topic)) {
           console.log(`Unsubscribing from topic: ${topic}`);
-          mqttClientRef.current.unsubscribe(topic);
-          subscribedTopicsRef.current.delete(topic);
+          currentMqttClient.unsubscribe(topic);
+          currentSubscribedTopics.delete(topic);
         }
       });
       
       // Subscribe to new topics
       topics.forEach(topic => {
-        if (!subscribedTopicsRef.current.has(topic)) {
+        if (!currentSubscribedTopics.has(topic)) {
           console.log(`Subscribing to topic: ${topic}`);
-          mqttClientRef.current.subscribe(topic, { qos: 0, retain: false }, (err) => {
+          currentMqttClient.subscribe(topic, { qos: 0, retain: false }, (err) => {
             if (err) {
               console.error(`Failed to subscribe to ${topic}:`, err);
             } else {
               console.log(`Successfully subscribed to ${topic}`);
-              subscribedTopicsRef.current.add(topic);
+              currentSubscribedTopics.add(topic);
             }
           });
         }
@@ -191,21 +195,21 @@ function KioskManagement() {
 
     // Cleanup function
     return () => {
-      if (mqttClientRef.current) {
+      if (currentMqttClient) {
         console.log("Cleaning up MQTT client");
         // Unsubscribe from all topics
-        subscribedTopicsRef.current.forEach(topic => {
-          mqttClientRef.current.unsubscribe(topic);
+        currentSubscribedTopics.forEach(topic => {
+          currentMqttClient.unsubscribe(topic);
         });
         // End the client connection
-        mqttClientRef.current.end();
+        currentMqttClient.end();
         // Clear the refs
         mqttClientRef.current = null;
         subscribedTopicsRef.current.clear();
         mqttLogsRef.current = {};
       }
     };
-  }, [kiosksData]); // Add kiosksData as dependency
+  }, [kiosksData]); // Remove createMqttClient from dependencies since it's defined in the component
 
   const onDrop = (acceptedFiles) => {
     const file = acceptedFiles[0];
