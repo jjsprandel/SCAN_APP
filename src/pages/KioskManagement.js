@@ -197,14 +197,16 @@ function KioskManagement() {
     return () => {
       if (currentMqttClient) {
         console.log("Cleaning up MQTT client");
-        // Unsubscribe from all topics
-        subscribedTopicsRef.current.forEach(topic => {
+        // Unsubscribe from all topics using the captured Set
+        currentSubscribedTopics.forEach(topic => {
           currentMqttClient.unsubscribe(topic);
         });
         // End the client connection
         currentMqttClient.end();
         // Clear the refs
         mqttClientRef.current = null;
+        // Update the ref with the captured Set before clearing
+        subscribedTopicsRef.current = currentSubscribedTopics;
         subscribedTopicsRef.current.clear();
         mqttLogsRef.current = {};
       }
