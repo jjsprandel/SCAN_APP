@@ -157,7 +157,7 @@ function KioskManagement() {
     if (!kiosksData) return;
 
     // Store ref values in variables to use in cleanup
-    const currentSubscribedTopics = subscribedTopicsRef.current;
+    const currentSubscribedTopics = new Set(subscribedTopicsRef.current);
     const currentMqttClient = mqttClientRef.current;
 
     // Only create the client if it doesn't exist
