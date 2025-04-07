@@ -18,7 +18,7 @@ const createMessageHandler = (client, setMqttLogs, mqttLogsRef, setPingResponses
       const messageText = message.toString();
       console.log(`Received ping response from ${macAddress}:`, messageText);
       
-      if (messageText === "ping website") {
+      if (messageText === "ping") {
         console.log(`Setting ping response to true for ${macAddress}`);
         // Only update the response for this specific kiosk
         setPingResponses(prev => {
