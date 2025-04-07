@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Container, Row, Col, Card, Form, Button, Alert, OverlayTrigger, Tooltip } from "react-bootstrap";
-import { ref, onValue, update } from "firebase/database";
+import { ref, onValue, update, set } from "firebase/database";
 import { database, storage } from "../services/Firebase";
 import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
 import Select from "react-select";
@@ -486,7 +486,6 @@ function KioskManagement() {
   const subscribedTopicsRef = useRef(new Set());
   const mqttLogsRef = useRef({});
   const pingTimeoutsRef = useRef({});
-  const previousKiosksDataRef = useRef(null);
 
   // Separate effect for fetching kiosks data
   useEffect(() => {
@@ -526,6 +525,7 @@ function KioskManagement() {
     if (!kiosksData) return; // Don't set up MQTT client until we have kiosk data
 
     let client = null;
+    const timeouts = { ...pingTimeoutsRef.current }; // Copy ref value at effect creation
 
     // Create MQTT client if it doesn't exist
     client = createMqttClient(kiosksData, subscribedTopicsRef, setMqttLogs, mqttLogsRef, setPingResponses, pingTimeoutsRef);
@@ -534,7 +534,7 @@ function KioskManagement() {
     // Cleanup function
     return () => {
       // Clear all timeouts
-      Object.values(pingTimeoutsRef.current).forEach(timeout => clearTimeout(timeout));
+      Object.values(timeouts).forEach(timeout => clearTimeout(timeout));
       
       // Unsubscribe from all topics
       if (client) {
