@@ -9,6 +9,17 @@ function CustomNavbar() {
   return (
     <Navbar bg="dark" variant="dark" expand="lg">
       <Navbar.Brand href="/" className="ms-3 nav-link-custom">
+        <img
+          src="/imgs/logo.png"
+          alt="Profile"
+          className="img-fluid"
+          style={{
+            width: "30px",
+            height: "30px",
+            borderRadius: "50%",
+            marginRight: "10px",
+          }}
+        />
         SCAN
       </Navbar.Brand>
       <Nav className="mx-auto">

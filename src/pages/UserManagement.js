@@ -60,7 +60,8 @@ function UserManagement() {
     const updatedProfileData = {
       ...editedProfileData,
       checkInStatus: editedProfileData.checkInStatus,
-      activeStudent: editedProfileData.activeStudent,
+      activeUser: editedProfileData.activeUser,
+      role: editedProfileData.role,
     };
     delete updatedProfileData.userId; // Ensure userId is not included in the user data
 
@@ -116,9 +117,10 @@ function UserManagement() {
       lastName: "",
       location: "",
       checkInStatus: "Checked Out",
-      activeStudent: "No",
+      activeUser: "No",
       totalOccupancyTime: "",
       averageStayDuration: "",
+      role: "Student",
     });
     setNewUserId("");
     setIsEditMode(true);
@@ -211,7 +213,6 @@ function UserManagement() {
                       />
                     </Col>
                   </Row>
-
                   {!profileData && (
                     <Row className="w-100 d-flex justify-content-center align-items-center">
                       <Col
@@ -233,7 +234,6 @@ function UserManagement() {
                       </Col>
                     </Row>
                   )}
-
                   <Row className="w-100 d-flex justify-content-center align-items-center">
                     <Col
                       md={6}
@@ -257,7 +257,6 @@ function UserManagement() {
                       )}
                     </Col>
                   </Row>
-
                   <Row className="w-100 d-flex justify-content-center align-items-center">
                     <Col
                       md={6}
@@ -281,7 +280,20 @@ function UserManagement() {
                       )}
                     </Col>
                   </Row>
-
+                  <Row className="w-100 d-flex justify-content-center align-items-center">
+                    <Col
+                      md={6}
+                      className="d-flex justify-content-left align-items-left"
+                    >
+                      <p>User ID:</p>
+                    </Col>
+                    <Col
+                      md={6}
+                      className="d-flex justify-content-left align-items-left"
+                    >
+                      <p>{profileData?.userId || "N/A"}</p>
+                    </Col>
+                  </Row>
                   <Row className="w-100 d-flex justify-content-center align-items-center">
                     <Col
                       md={6}
@@ -308,13 +320,12 @@ function UserManagement() {
                       )}
                     </Col>
                   </Row>
-
                   <Row className="w-100 d-flex justify-content-center align-items-center">
                     <Col
                       md={6}
                       className="d-flex justify-content-left align-items-left"
                     >
-                      <p>Active Student:</p>
+                      <p>Active User:</p>
                     </Col>
                     <Col
                       md={6}
@@ -323,15 +334,42 @@ function UserManagement() {
                       {isEditMode ? (
                         <Form.Control
                           as="select"
-                          name="activeStudent"
-                          value={editedProfileData.activeStudent}
+                          name="activeUser"
+                          value={editedProfileData.activeUser}
                           onChange={handleInputChange}
                         >
                           <option value="Yes">Yes</option>
                           <option value="No">No</option>
                         </Form.Control>
                       ) : (
-                        <p>{profileData.activeStudent}</p>
+                        <p>{profileData.activeUser}</p>
+                      )}
+                    </Col>
+                  </Row>
+
+                  <Row className="w-100 d-flex justify-content-center align-items-center">
+                    <Col
+                      md={6}
+                      className="d-flex justify-content-left align-items-left"
+                    >
+                      <p>Role:</p>
+                    </Col>
+                    <Col
+                      md={6}
+                      className="d-flex justify-content-left align-items-left"
+                    >
+                      {isEditMode ? (
+                        <Form.Control
+                          as="select"
+                          name="role"
+                          value={editedProfileData.role || ""}
+                          onChange={handleInputChange}
+                        >
+                          <option value="admin">Admin</option>
+                          <option value="student">Student</option>
+                        </Form.Control>
+                      ) : (
+                        <p>{profileData.role || "N/A"}</p>
                       )}
                     </Col>
                   </Row>
@@ -349,11 +387,15 @@ function UserManagement() {
                     >
                       {isEditMode ? (
                         <Form.Control
-                          type="text"
+                          as="select"
                           name="location"
                           value={editedProfileData.location || ""}
                           onChange={handleInputChange}
-                        />
+                        >
+                          <option value="UCF RWC">UCF RWC</option>
+                          <option value="UCF Arena">UCF Arena</option>
+                          <option value="UCF Library">UCF Library</option>
+                        </Form.Control>
                       ) : (
                         <p>{profileData.location || "N/A"}</p>
                       )}
@@ -383,7 +425,6 @@ function UserManagement() {
                       )}
                     </Col>
                   </Row>
-
                   <Row className="w-100 d-flex justify-content-center align-items-center">
                     <Col
                       md={6}
@@ -407,7 +448,6 @@ function UserManagement() {
                       )}
                     </Col>
                   </Row>
-
                   <Row className="w-100 d-flex justify-content-center align-items-center">
                     <Col
                       md={6}
