@@ -1,4 +1,11 @@
-/* Add this to your App.css or a new CSS file */
 .nav-link-custom {
-  font-size: 1.8rem; /* Adjust the font size as needed */
+  font-size: 1.2rem; /* Adjust font size for better readability on mobile */
+}
+
+.navbar-toggler {
+  border: none; /* Optional: Remove border around the hamburger icon */
+}
+
+.navbar-collapse {
+  text-align: center; /* Center-align links in the dropdown */
 }
