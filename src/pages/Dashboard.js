@@ -118,7 +118,7 @@ function Dashboard() {
       const data = snapshot.val() || [];
       const histogramDataArray = new Array(24).fill(0).map((_, hour) => {
         const hourData = data[hour] || {};
-        return hourData.currentStat || 0;
+        return Math.round(hourData.currentStat || 0); // Round to the nearest whole number
       });
 
       // Filter data to only include times between 6 AM and 12 PM
