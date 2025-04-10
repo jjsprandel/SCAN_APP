@@ -226,7 +226,7 @@ const ActiveState = ({ kiosk }) => (
           ) : (
             <>
               <i className="fas fa-battery-three-quarters me-1"></i>
-              Battery: {parseFloat(kiosk.batteryVoltage || 0).toFixed(1)}V
+              Battery: {parseFloat(kiosk.batteryVoltage || 0).toFixed(2)}V
             </>
           )}
         </small>
