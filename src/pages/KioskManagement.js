@@ -43,7 +43,7 @@ const createMessageHandler = (client, setMqttLogs, mqttLogsRef, setPingResponses
             ...prev,
             [macAddress]: false
           }));
-        }, 15000);
+        }, 25000);
       }
       return;
     }
@@ -142,7 +142,7 @@ const createMqttClient = (kiosksData, subscribedTopicsRef, setMqttLogs, mqttLogs
           ...prev,
           [macAddress]: false
         }));
-      }, 15000);
+      }, 25000);
     });
   });
 
@@ -226,7 +226,7 @@ const ActiveState = ({ kiosk }) => (
           ) : (
             <>
               <i className="fas fa-battery-three-quarters me-1"></i>
-              Battery: {kiosk.batteryVoltage.toFixed(1)}V
+              Battery: {parseFloat(kiosk.batteryVoltage || 0).toFixed(1)}V
             </>
           )}
         </small>
