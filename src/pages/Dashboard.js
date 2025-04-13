@@ -28,6 +28,7 @@ function Dashboard() {
   const [averageStay, setAverageStay] = useState("0 hours");
   const [occupancyData, setOccupancyData] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState("UCF RWC");
+  const [activityLogData, setActivityLogData] = useState([]);
 
   // Get the current day of the week
   const daysOfWeek = [
@@ -54,6 +55,7 @@ function Dashboard() {
       `stats/histogram/${selectedLocation}/${selectedDay}`
     );
 
+    // Listener for activity log
     const unsubscribeActivityLog = onValue(activityLogRef, (snapshot) => {
       const activityLog = snapshot.val() || {};
       const combinedData = Object.values(activityLog);
@@ -74,36 +76,16 @@ function Dashboard() {
         return { time: entry.timestamp, count: currentOccupancy };
       });
 
-      // Aggregate data into hourly intervals
-      const hourlyOccupancy = new Array(24).fill(0);
-      occupancyTimeline.forEach((entry) => {
-        const hour = parseInt(entry.time.substring(9, 11), 10); // Extract hour from timestamp
-        hourlyOccupancy[hour] += entry.count;
-      });
-
-      // Filter data to only include times between 6 AM and 12 PM
-      const filteredOccupancyDataArray = hourlyOccupancy
-        .map((count, hour) => {
-          if (hour >= 6 && hour <= 12) {
-            const period = hour >= 12 ? "PM" : "AM";
-            const formattedHour = hour % 12 === 0 ? 12 : hour % 12;
-            return {
-              time: `${formattedHour} ${period}`,
-              count,
-            };
-          }
-          return null;
-        })
-        .filter((entry) => entry !== null);
-
-      setOccupancyData(filteredOccupancyDataArray);
+      setActivityLogData(occupancyTimeline); // Update activity log data
     });
 
+    // Listener for occupancy
     const unsubscribeOccupancy = onValue(occupancyRef, (snapshot) => {
       const data = snapshot.val();
       setOccupancy(data);
     });
 
+    // Listener for average stay duration
     const unsubscribeAverageStay = onValue(averageStayRef, (snapshot) => {
       const data = snapshot.val();
       if (data && data.num_visits > 0) {
@@ -114,6 +96,7 @@ function Dashboard() {
       }
     });
 
+    // Listener for histogram data
     const unsubscribeHistogram = onValue(histogramRef, (snapshot) => {
       const data = snapshot.val() || [];
       const histogramDataArray = new Array(24).fill(0).map((_, hour) => {
@@ -121,7 +104,6 @@ function Dashboard() {
         return Math.round(hourData.currentStat || 0); // Round to the nearest whole number
       });
 
-      // Filter data to only include times between 6 AM and 12 PM
       const filteredHistogramData = histogramDataArray
         .map((count, hour) => {
           if (hour >= 6 && hour <= 24) {
@@ -136,7 +118,7 @@ function Dashboard() {
         })
         .filter((entry) => entry !== null);
 
-      setOccupancyData(filteredHistogramData);
+      setOccupancyData(filteredHistogramData); // Update histogram data
     });
 
     // Cleanup subscriptions on unmount
