@@ -28,7 +28,6 @@ function Dashboard() {
   const [averageStay, setAverageStay] = useState("0 hours");
   const [occupancyData, setOccupancyData] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState("UCF RWC");
-  const [activityLogData, setActivityLogData] = useState([]);
 
   // Get the current day of the week
   const daysOfWeek = [
@@ -64,19 +63,6 @@ function Dashboard() {
       combinedData.sort(
         (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
       );
-
-      // Compute occupancy at each timestamp
-      let currentOccupancy = 0;
-      const occupancyTimeline = combinedData.map((entry) => {
-        if (entry.action === "Check-In") {
-          currentOccupancy += 1;
-        } else if (entry.action === "Check-Out") {
-          currentOccupancy -= 1;
-        }
-        return { time: entry.timestamp, count: currentOccupancy };
-      });
-
-      setActivityLogData(occupancyTimeline); // Update activity log data
     });
 
     // Listener for occupancy
