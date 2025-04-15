@@ -426,11 +426,19 @@ function KioskManagement() {
     );
 
     // Set up message handler
-    client.on('message', (topic, message) => {
+    client.on('message', (topic, message, packet) => {
       console.log(`Message handler triggered for topic: ${topic}`);
+      console.log(`Retained: ${packet.retain}`);
       const macAddress = topic.split('/')[1];
       const messageText = message.toString();
       console.log(`Received message from ${macAddress}: ${messageText}`);
+      console.log(`Retained: ${packet.retain}`);
+
+      // Ignore retained messages
+      if (packet.retain) {
+        console.log(`Ignoring retained message for ${macAddress}`);
+        return;
+      }
 
       // Handle ping responses
       if (topic.endsWith('/ping')) {
