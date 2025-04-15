@@ -38,6 +38,16 @@ function UserManagement() {
     };
   }, []);
 
+  useEffect(() => {
+    if (profileData) {
+      const updatedProfile = users.find((user) => user.userId === profileData.userId);
+      if (updatedProfile) {
+        setProfileData(updatedProfile);
+        setEditedProfileData(updatedProfile);
+      }
+    }
+  }, [users, profileData]);
+
   const handleRowClick = (user) => {
     setProfileData(user);
     setEditedProfileData(user);
