@@ -213,7 +213,24 @@ function UserManagement() {
                       />
                     </Col>
                   </Row>
-                  {!profileData && (
+                  {profileData ? (
+                    // Display User ID for existing user
+                    <Row className="w-100 d-flex justify-content-center align-items-center">
+                      <Col
+                        md={6}
+                        className="d-flex justify-content-left align-items-left"
+                      >
+                        <p>User ID:</p>
+                      </Col>
+                      <Col
+                        md={6}
+                        className="d-flex justify-content-left align-items-left"
+                      >
+                        <p>{profileData?.userId || "N/A"}</p>
+                      </Col>
+                    </Row>
+                  ) : (
+                    // Input field for new user ID
                     <Row className="w-100 d-flex justify-content-center align-items-center">
                       <Col
                         md={6}
@@ -280,7 +297,7 @@ function UserManagement() {
                       )}
                     </Col>
                   </Row>
-                  <Row className="w-100 d-flex justify-content-center align-items-center">
+                  {/* <Row className="w-100 d-flex justify-content-center align-items-center">
                     <Col
                       md={6}
                       className="d-flex justify-content-left align-items-left"
@@ -293,7 +310,7 @@ function UserManagement() {
                     >
                       <p>{profileData?.userId || "N/A"}</p>
                     </Col>
-                  </Row>
+                  </Row> */}
                   <Row className="w-100 d-flex justify-content-center align-items-center">
                     <Col
                       md={6}
@@ -365,8 +382,8 @@ function UserManagement() {
                           value={editedProfileData.role || ""}
                           onChange={handleInputChange}
                         >
-                          <option value="admin">Admin</option>
-                          <option value="student">Student</option>
+                          <option value="Admin">Admin</option>
+                          <option value="Student">Student</option>
                         </Form.Control>
                       ) : (
                         <p>{profileData.role || "N/A"}</p>
