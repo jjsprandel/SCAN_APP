@@ -696,8 +696,11 @@ function KioskManagement() {
 
     // Check if any selected kiosks are inactive
     const inactiveKiosks = selectedKiosks.filter(kiosk => pingResponses[kiosk.value] === false);
+    const activeKiosks = selectedKiosks.filter(kiosk => pingResponses[kiosk.value] === true);
     const hasInactiveKiosks = inactiveKiosks.length > 0;
+    const hasActiveKiosks = activeKiosks.length > 0;
     const inactiveNames = inactiveKiosks.map(k => k.label).join(', ');
+    const activeNames = activeKiosks.map(k => k.label).join(', ');
 
     setIsUploading(true);
     setError(null);
@@ -769,8 +772,15 @@ function KioskManagement() {
               if (messagesSent === selectedKiosks.length) {
                 setUploadProgress(100);
                 
-                // Show error message if any kiosks are inactive, otherwise show success
-                if (hasInactiveKiosks) {
+                // Show both error and success messages if there are both active and inactive kiosks
+                if (hasInactiveKiosks && hasActiveKiosks) {
+                  setError(`Warning: The following kiosks are inactive and may not receive the update: ${inactiveNames}`);
+                  setSuccess({
+                    message: `Firmware update initiated for the following active kiosks: ${activeNames}`,
+                    url: firmwareUrl,
+                    fileName: fileName
+                  });
+                } else if (hasInactiveKiosks) {
                   setError(`Warning: The following kiosks are inactive and may not receive the update: ${inactiveNames}`);
                 } else {
                   setSuccess({
