@@ -104,7 +104,8 @@ exports.updateOccupancy = onValueWritten(
       occupancy += 1;
       updates[`/users/${userId}/checkInStatus`] = "Checked In";
       updates[`/users/${userId}/lastCheckIn`] = timestampStr;
-      console.log("User checked in. Updated occupancy:", occupancy);
+      updates[`/users/${userId}/location`] = location; // Update user's location
+      console.log("User checked in. Updated occupancy and location:", occupancy, location);
     } else if (activityType === "Check-Out") {
       occupancy -= 1;
       updates[`/users/${userId}/checkInStatus`] = "Checked Out";
