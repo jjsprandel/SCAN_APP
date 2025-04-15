@@ -329,7 +329,7 @@ function KioskManagement() {
   const [kiosksData, setKiosksData] = useState(null);
   const [mqttLogs, setMqttLogs] = useState({});
   const [pingResponses, setPingResponses] = useState({});
-  const [countdownTimers, setCountdownTimers] = useState({});
+  const [, setCountdownTimers] = useState({});
   const mqttClientRef = useRef(null);
   const subscribedTopicsRef = useRef(new Set());
   const mqttLogsRef = useRef({});
@@ -357,7 +357,7 @@ function KioskManagement() {
         Object.keys(lastPingTimeRef.current).forEach(macAddress => {
           const lastPingTime = lastPingTimeRef.current[macAddress];
           const timeElapsed = now - lastPingTime;
-          const timeRemaining = Math.max(0, 25000 - timeElapsed);
+          const timeRemaining = Math.max(0, 15000 - timeElapsed);
           
           if (timeRemaining > 0) {
             hasActiveTimers = true;
@@ -465,7 +465,7 @@ function KioskManagement() {
               newResponses[macAddress] = false;
               return newResponses;
             });
-          }, 25000);
+          }, 15000);
         }
         return; // Return early for ping messages
       }
@@ -592,7 +592,7 @@ function KioskManagement() {
             ...prev,
             [macAddress]: false
           }));
-        }, 25000);
+        }, 15000);
       }
     });
     
