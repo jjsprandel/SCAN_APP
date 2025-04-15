@@ -32,8 +32,10 @@ const createMessageHandler = (client, setMqttLogs, mqttLogsRef, setPingResponses
 
         // Clear any existing timeout for this kiosk
         if (pingTimeoutsRef.current[macAddress]) {
+          console.log(`Clearing existing timeout for ${macAddress}`);
           clearTimeout(pingTimeoutsRef.current[macAddress]);
           delete pingTimeoutsRef.current[macAddress];
+          console.log(`Timer reset for ${macAddress} at ${new Date().toLocaleTimeString()}`);
         }
 
         // Set a new timeout for this kiosk
@@ -500,11 +502,11 @@ function KioskManagement() {
         : [];
       setKiosks(kiosksArray);
       setKiosksData(data);
-      console.log("Kiosks data:", data);
+      console.log("Database updated at", new Date().toLocaleTimeString(), "with data:", data);
     });
 
     return () => unsubscribe();
-  }, []); // Empty dependency array since we only want to set this up once
+  }, []);
 
   // Separate effect for GitHub releases
   useEffect(() => {
