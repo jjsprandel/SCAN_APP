@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Container, Row, Col, Card, Form, Button, Alert, OverlayTrigger, Tooltip } from "react-bootstrap";
-import { ref, onValue } from "firebase/database";
+import { ref, onValue, update } from "firebase/database";
 import { database, storage } from "../services/Firebase";
 import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
 import Select from "react-select";
@@ -671,16 +671,35 @@ function KioskManagement() {
   };
 
   const handleUpdateFirmware = async () => {
-    try {
-      setIsUploading(true);
-      setUploadProgress(0);
-      setError(null);
-      setSuccess(null);
-      setFirmwareSize(null);
+    if (selectedKiosks.length === 0) {
+      setError("Please select at least one kiosk");
+      return;
+    }
 
+    if (updateMethod === "github" && !selectedVersion) {
+      setError("Please select a version");
+      return;
+    }
+
+    if (updateMethod === "custom" && !customFirmware) {
+      setError("Please upload a firmware file");
+      return;
+    }
+
+    // Check if any selected kiosks are inactive
+    const inactiveKiosks = selectedKiosks.filter(kiosk => pingResponses[kiosk.value] === false);
+    const hasInactiveKiosks = inactiveKiosks.length > 0;
+    const inactiveNames = inactiveKiosks.map(k => k.label).join(', ');
+
+    setIsUploading(true);
+    setError(null);
+    setSuccess(null);
+    setUploadProgress(0);
+
+    try {
       let firmwareUrl;
       let fileName;
-      
+
       if (updateMethod === "github") {
         // Get the firmware URL from GitHub
         const response = await fetch(
@@ -700,28 +719,28 @@ function KioskManagement() {
           const size = sizeResponse.headers.get('content-length');
           setFirmwareSize(size ? formatFileSize(parseInt(size)) : null);
         }
-      } else if (updateMethod === "custom") {
-        if (!customFirmware) {
-          throw new Error("Please select a firmware file");
-        }
-
-        fileName = customFirmware.name;
+      } else {
+        // Upload custom firmware to Firebase Storage
+        const file = customFirmware;
+        fileName = file.name;
+        
         // Get file size
-        setFirmwareSize(formatFileSize(customFirmware.size));
-
-        const fileRef = storageRef(storage, `firmware/${Date.now()}-${customFirmware.name}`);
-        await uploadBytes(fileRef, customFirmware);
-        setUploadProgress(50);
-        firmwareUrl = await getDownloadURL(fileRef);
-        setUploadProgress(75);
+        setFirmwareSize(formatFileSize(file.size));
+        
+        const storageReference = storageRef(storage, `firmware/${file.name}`);
+        await uploadBytes(storageReference, file);
+        firmwareUrl = await getDownloadURL(storageReference);
       }
 
-      if (!firmwareUrl) {
-        throw new Error("No firmware URL available");
-      }
+      // Update the firmware URL in the database for each selected kiosk
+      const updates = {};
+      selectedKiosks.forEach((kiosk) => {
+        updates[`kiosks/${kiosk.value}/firmwareUrl`] = firmwareUrl;
+      });
 
-      setUploadProgress(90);
+      await update(ref(database), updates);
 
+      // Send MQTT messages to all selected kiosks
       let messagesSent = 0;
       selectedKiosks.forEach((kiosk) => {
         const topic = `kiosks/${kiosk.value}/update`;
@@ -734,18 +753,25 @@ function KioskManagement() {
 
         if (mqttClientRef.current && mqttClientRef.current.connected) {
           mqttClientRef.current.publish(topic, message, (err) => {
-          if (err) {
-            console.error(`Failed to publish message to ${topic}:`, err);
-          } else {
-            console.log(`Message published to ${topic}:`, message);
+            if (err) {
+              console.error(`Failed to publish message to ${topic}:`, err);
+            } else {
+              console.log(`Message published to ${topic}:`, message);
               messagesSent++;
               if (messagesSent === selectedKiosks.length) {
                 setUploadProgress(100);
-                setSuccess({
-                  message: `Firmware update initiated for ${selectedKiosks.length} kiosk${selectedKiosks.length > 1 ? 's' : ''}`,
-                  url: firmwareUrl,
-                  fileName: fileName
-                });
+                
+                // Show error message if any kiosks are inactive, otherwise show success
+                if (hasInactiveKiosks) {
+                  setError(`Warning: The following kiosks are inactive and may not receive the update: ${inactiveNames}`);
+                } else {
+                  setSuccess({
+                    message: `Firmware update initiated for ${selectedKiosks.length} kiosk${selectedKiosks.length > 1 ? 's' : ''}`,
+                    url: firmwareUrl,
+                    fileName: fileName
+                  });
+                }
+                
                 setTimeout(() => {
                   setIsUploading(false);
                   setUploadProgress(0);
@@ -758,8 +784,9 @@ function KioskManagement() {
         }
       });
     } catch (error) {
-      console.error("Failed to update firmware:", error);
-      setError(error.message);
+      console.error("Error updating firmware:", error);
+      setError("Failed to update firmware. Please try again.");
+    } finally {
       setIsUploading(false);
       setUploadProgress(0);
     }
