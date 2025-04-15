@@ -7,161 +7,6 @@ import Select from "react-select";
 import mqtt from "mqtt";
 import { useDropzone } from "react-dropzone";
 
-// Create a single message handler function outside the component
-const createMessageHandler = (client, setMqttLogs, mqttLogsRef, setPingResponses, pingTimeoutsRef) => {
-  return (topic, message) => {
-    console.log("Message handler triggered for topic:", topic);
-    
-    // Handle ping responses
-    if (topic.endsWith('/ping')) {
-      const macAddress = topic.split("/")[1];
-      const messageText = message.toString();
-      console.log(`Received ping response from ${macAddress}:`, messageText);
-      
-      if (messageText === "ping") {
-        console.log(`Setting ping response to true for ${macAddress}`);
-        // Only update the response for this specific kiosk
-        setPingResponses(prev => {
-          const newResponses = {
-            ...prev,
-            [macAddress]: true
-          };
-          console.log('New ping responses:', newResponses);
-          return newResponses;
-        });
-
-        // Clear any existing timeout for this kiosk
-        if (pingTimeoutsRef.current[macAddress]) {
-          console.log(`Clearing existing timeout for ${macAddress}`);
-          clearTimeout(pingTimeoutsRef.current[macAddress]);
-          delete pingTimeoutsRef.current[macAddress];
-          console.log(`Timer reset for ${macAddress} at ${new Date().toLocaleTimeString()}`);
-        }
-
-        // Set a new timeout for this kiosk
-        pingTimeoutsRef.current[macAddress] = setTimeout(() => {
-          console.log(`Timeout for ${macAddress} - no ping response received`);
-          setPingResponses(prev => ({
-            ...prev,
-            [macAddress]: false
-          }));
-        }, 25000);
-      }
-      return;
-    }
-    
-    // Only process messages from status topics
-    if (!topic.endsWith('/status')) {
-      console.log("Ignoring non-status message from topic:", topic);
-      return;
-    }
-
-    const macAddress = topic.split("/")[1];
-    console.log("Extracted MAC address:", macAddress);
-    const messageText = message.toString();
-    console.log("Message content:", messageText);
-    const timestamp = Date.now();
-    
-    // Update the ref first
-    if (!mqttLogsRef.current[macAddress]) {
-      console.log("Creating new log array for MAC:", macAddress);
-      mqttLogsRef.current[macAddress] = [];
-    }
-    
-    // Add the new message at the beginning with timestamp
-    mqttLogsRef.current[macAddress].unshift({ text: messageText, timestamp });
-    console.log("Updated logs for MAC:", macAddress, mqttLogsRef.current[macAddress]);
-    
-    // Keep only the last 15 messages
-    if (mqttLogsRef.current[macAddress].length > 15) {
-      mqttLogsRef.current[macAddress].pop();
-    }
-    
-    // Update the state with the new logs
-    setMqttLogs({ ...mqttLogsRef.current });
-    console.log("Updated MQTT logs state:", mqttLogsRef.current);
-
-    // Set up individual timer for this specific message
-    setTimeout(() => {
-      if (mqttLogsRef.current[macAddress]) {
-        // Only remove this specific message
-        mqttLogsRef.current[macAddress] = mqttLogsRef.current[macAddress].filter(
-          msg => msg.timestamp !== timestamp
-        );
-        setMqttLogs({ ...mqttLogsRef.current });
-      }
-    }, 15000);
-  };
-};
-
-// Create MQTT client function outside the component
-const createMqttClient = (kiosksData, subscribedTopicsRef, setMqttLogs, mqttLogsRef, setPingResponses, pingTimeoutsRef) => {
-  console.log("Creating new MQTT client");
-  console.log("Available kiosks data:", kiosksData);
-  const client = mqtt.connect(
-    "wss://0ec065087cf84d309f1c73b00c9441f8.s1.eu.hivemq.cloud:8884/mqtt",
-    {
-      username: "admin",
-      password: "Password1234",
-      clean: true,
-      reconnectPeriod: 0,
-      clientId: 'kiosk_management_' + Math.random().toString(16).substr(2, 8),
-      protocolVersion: 4,
-      protocol: 'wss',
-      rejectUnauthorized: false
-    }
-  );
-
-  client.on('connect', () => {
-    console.log('Connected to MQTT broker');
-    
-    // Subscribe to topics for all kiosks
-    Object.entries(kiosksData).forEach(([macAddress]) => {
-      const pingTopic = `kiosks/${macAddress}/ping`;
-      const statusTopic = `kiosks/${macAddress}/status`;
-      
-      // Subscribe to both ping and status topics
-      client.subscribe(pingTopic, { qos: 0, retain: false }, (err) => {
-        if (err) {
-          console.error(`Failed to subscribe to ${pingTopic}:`, err);
-        } else {
-          console.log(`Successfully subscribed to ${pingTopic}`);
-        }
-      });
-      
-      client.subscribe(statusTopic, { qos: 0, retain: false }, (err) => {
-        if (err) {
-          console.error(`Failed to subscribe to ${statusTopic}:`, err);
-        } else {
-          console.log(`Successfully subscribed to ${statusTopic}`);
-        }
-      });
-
-      // Set initial timeout for each kiosk
-      pingTimeoutsRef.current[macAddress] = setTimeout(() => {
-        console.log(`Initial timeout for ${macAddress} - no ping response received`);
-        setPingResponses(prev => ({
-          ...prev,
-          [macAddress]: false
-        }));
-      }, 25000);
-    });
-  });
-
-  // Use the message handler from the outer scope
-  client.on('message', createMessageHandler(client, setMqttLogs, mqttLogsRef, setPingResponses, pingTimeoutsRef));
-
-  client.on('error', (error) => {
-    console.error('MQTT Error:', error);
-  });
-
-  client.on('close', () => {
-    console.log('MQTT client connection closed');
-  });
-
-  return client;
-};
-
 // Kiosk State Components
 const InactiveState = ({ kiosk }) => (
   <>
@@ -484,10 +329,62 @@ function KioskManagement() {
   const [kiosksData, setKiosksData] = useState(null);
   const [mqttLogs, setMqttLogs] = useState({});
   const [pingResponses, setPingResponses] = useState({});
+  const [countdownTimers, setCountdownTimers] = useState({});
   const mqttClientRef = useRef(null);
   const subscribedTopicsRef = useRef(new Set());
   const mqttLogsRef = useRef({});
   const pingTimeoutsRef = useRef({});
+  const lastPingTimeRef = useRef({});
+  const countdownIntervalRef = useRef(null);
+
+  // Add effect for countdown timers
+  useEffect(() => {
+    // Clear any existing interval
+    if (countdownIntervalRef.current) {
+      clearInterval(countdownIntervalRef.current);
+    }
+
+    // Set up a new interval to update countdown timers every second
+    countdownIntervalRef.current = setInterval(() => {
+      const now = Date.now();
+      let hasActiveTimers = false;
+
+      // Use functional update pattern to avoid dependency on countdownTimers
+      setCountdownTimers(prevCountdowns => {
+        const newCountdowns = { ...prevCountdowns };
+        
+        // Update countdown for each kiosk
+        Object.keys(lastPingTimeRef.current).forEach(macAddress => {
+          const lastPingTime = lastPingTimeRef.current[macAddress];
+          const timeElapsed = now - lastPingTime;
+          const timeRemaining = Math.max(0, 25000 - timeElapsed);
+          
+          if (timeRemaining > 0) {
+            hasActiveTimers = true;
+            newCountdowns[macAddress] = Math.ceil(timeRemaining / 1000);
+          } else {
+            newCountdowns[macAddress] = 0;
+          }
+        });
+
+        // Only update if there are active timers
+        return hasActiveTimers ? newCountdowns : prevCountdowns;
+      });
+
+      // Clear interval if no active timers
+      if (!hasActiveTimers && countdownIntervalRef.current) {
+        clearInterval(countdownIntervalRef.current);
+        countdownIntervalRef.current = null;
+      }
+    }, 1000);
+
+    // Cleanup function
+    return () => {
+      if (countdownIntervalRef.current) {
+        clearInterval(countdownIntervalRef.current);
+      }
+    };
+  }, []); // Empty dependency array is now correct since we're using functional updates
 
   // Separate effect for fetching kiosks data
   useEffect(() => {
@@ -508,6 +405,212 @@ function KioskManagement() {
     return () => unsubscribe();
   }, []);
 
+  // Create MQTT client only once
+  useEffect(() => {
+    console.log("Creating MQTT client once");
+    
+    // Create MQTT client
+    const client = mqtt.connect(
+      "wss://0ec065087cf84d309f1c73b00c9441f8.s1.eu.hivemq.cloud:8884/mqtt",
+      {
+        username: "admin",
+        password: "Password1234",
+        clean: true,
+        reconnectPeriod: 0,
+        clientId: 'kiosk_management_' + Math.random().toString(16).substr(2, 8),
+        protocolVersion: 4,
+        protocol: 'wss',
+        rejectUnauthorized: false
+      }
+    );
+
+    // Set up message handler
+    client.on('message', (topic, message) => {
+      console.log(`Message handler triggered for topic: ${topic}`);
+      const macAddress = topic.split('/')[1];
+      const messageText = message.toString();
+      console.log(`Received message from ${macAddress}: ${messageText}`);
+
+      // Handle ping responses
+      if (topic.endsWith('/ping')) {
+        if (messageText === "ping") {
+          console.log(`Processing ping from ${macAddress}`);
+          
+          // Update last ping time
+          lastPingTimeRef.current[macAddress] = Date.now();
+          
+          // Only update the specific kiosk that sent the ping
+          setPingResponses(prev => {
+            const newResponses = { ...prev };
+            // Only set true for the kiosk that actually sent the ping
+            newResponses[macAddress] = true;
+            console.log(`Updated ping responses for ${macAddress} only:`, newResponses);
+            return newResponses;
+          });
+
+          // Clear any existing timeout for this kiosk
+          if (pingTimeoutsRef.current[macAddress]) {
+            console.log(`Clearing existing timeout for ${macAddress}`);
+            clearTimeout(pingTimeoutsRef.current[macAddress]);
+            delete pingTimeoutsRef.current[macAddress];
+            console.log(`Timer reset for ${macAddress} at ${new Date().toLocaleTimeString()}`);
+          }
+
+          // Set new timeout for this kiosk
+          console.log(`Setting new timeout for ${macAddress}`);
+          pingTimeoutsRef.current[macAddress] = setTimeout(() => {
+            console.log(`Timeout triggered for ${macAddress} - setting to inactive`);
+            setPingResponses(prev => {
+              const newResponses = { ...prev };
+              newResponses[macAddress] = false;
+              return newResponses;
+            });
+          }, 25000);
+        }
+        return; // Return early for ping messages
+      }
+      
+      // Handle status messages
+      if (topic.endsWith('/status')) {
+        console.log("Extracted MAC address:", macAddress);
+        console.log("Message content:", messageText);
+        const timestamp = Date.now();
+        
+        // Update the ref first
+        if (!mqttLogsRef.current[macAddress]) {
+          console.log("Creating new log array for MAC:", macAddress);
+          mqttLogsRef.current[macAddress] = [];
+        }
+        
+        // Add the new message at the beginning with timestamp
+        mqttLogsRef.current[macAddress].unshift({ text: messageText, timestamp });
+        console.log("Updated logs for MAC:", macAddress, mqttLogsRef.current[macAddress]);
+        
+        // Keep only the last 15 messages
+        if (mqttLogsRef.current[macAddress].length > 15) {
+          mqttLogsRef.current[macAddress].pop();
+        }
+        
+        // Update the state with the new logs
+        setMqttLogs({ ...mqttLogsRef.current });
+        console.log("Updated MQTT logs state:", mqttLogsRef.current);
+
+        // Set up individual timer for this specific message
+        setTimeout(() => {
+          if (mqttLogsRef.current[macAddress]) {
+            // Only remove this specific message
+            mqttLogsRef.current[macAddress] = mqttLogsRef.current[macAddress].filter(
+              msg => msg.timestamp !== timestamp
+            );
+            setMqttLogs({ ...mqttLogsRef.current });
+          }
+        }, 15000);
+      }
+    });
+
+    client.on('connect', () => {
+      console.log('Connected to MQTT broker');
+    });
+
+    client.on('error', (error) => {
+      console.error('MQTT Error:', error);
+    });
+
+    client.on('close', () => {
+      console.log('MQTT client connection closed');
+    });
+
+    // Store the client in the ref
+    mqttClientRef.current = client;
+
+    // Store current timeouts for cleanup
+    const currentTimeouts = { ...pingTimeoutsRef.current };
+
+    // Cleanup function - only on unmount
+    return () => {
+      console.log("Cleaning up MQTT client on unmount");
+      // Clear all timeouts using the stored reference
+      Object.values(currentTimeouts).forEach(timeout => clearTimeout(timeout));
+      
+      // End the client
+      if (client) {
+        client.end();
+      }
+    };
+  }, []); // Empty dependency array to run only once
+
+  // Update subscriptions when kiosksData changes
+  useEffect(() => {
+    if (!mqttClientRef.current || !kiosksData) return;
+    
+    console.log("Updating MQTT subscriptions for kiosksData change");
+    const client = mqttClientRef.current;
+    
+    // Track what's already subscribed
+    const alreadySubscribed = subscribedTopicsRef.current;
+    
+    // Subscribe to topics for all kiosks
+    Object.entries(kiosksData).forEach(([macAddress]) => {
+      const pingTopic = `kiosks/${macAddress}/ping`;
+      const statusTopic = `kiosks/${macAddress}/status`;
+      
+      // Subscribe to ping topic if not already subscribed
+      if (!alreadySubscribed.has(pingTopic)) {
+        client.subscribe(pingTopic, { qos: 0, retain: false }, (err) => {
+          if (err) {
+            console.error(`Failed to subscribe to ${pingTopic}:`, err);
+          } else {
+            console.log(`Successfully subscribed to ${pingTopic}`);
+            alreadySubscribed.add(pingTopic);
+          }
+        });
+      }
+      
+      // Subscribe to status topic if not already subscribed
+      if (!alreadySubscribed.has(statusTopic)) {
+        client.subscribe(statusTopic, { qos: 0, retain: false }, (err) => {
+          if (err) {
+            console.error(`Failed to subscribe to ${statusTopic}:`, err);
+          } else {
+            console.log(`Successfully subscribed to ${statusTopic}`);
+            alreadySubscribed.add(statusTopic);
+          }
+        });
+      }
+      
+      // Initialize last ping time for this kiosk if not already set
+      if (!lastPingTimeRef.current[macAddress]) {
+        lastPingTimeRef.current[macAddress] = Date.now();
+      }
+      
+      // Set initial timeout for this kiosk if not already set
+      if (!pingTimeoutsRef.current[macAddress]) {
+        console.log(`Setting initial timeout for ${macAddress}`);
+        pingTimeoutsRef.current[macAddress] = setTimeout(() => {
+          console.log(`Initial timeout for ${macAddress} - no ping response received`);
+          setPingResponses(prev => ({
+            ...prev,
+            [macAddress]: false
+          }));
+        }, 25000);
+      }
+    });
+    
+    // Clean up timeouts for kiosks that are no longer in kiosksData
+    const kioskIds = Object.keys(kiosksData);
+    const currentIds = Object.keys(pingTimeoutsRef.current);
+    
+    currentIds.forEach(mac => {
+      if (!kioskIds.includes(mac)) {
+        console.log(`Cleaning up timeout for removed kiosk ${mac}`);
+        clearTimeout(pingTimeoutsRef.current[mac]);
+        delete pingTimeoutsRef.current[mac];
+        delete lastPingTimeRef.current[mac];
+      }
+    });
+    
+  }, [kiosksData]); // Only run when kiosksData changes
+
   // Separate effect for GitHub releases
   useEffect(() => {
     fetch("https://api.github.com/repos/jjsprandel/SCAN/releases")
@@ -521,35 +624,6 @@ function KioskManagement() {
       })
       .catch((error) => console.error("Error fetching releases:", error));
   }, []); // Empty dependency array since we only want to fetch releases once
-
-  // MQTT Client Effect
-  useEffect(() => {
-    if (!kiosksData) return; // Don't set up MQTT client until we have kiosk data
-
-    let client = null;
-    const timeouts = { ...pingTimeoutsRef.current }; // Copy ref value at effect creation
-
-    // Create MQTT client if it doesn't exist
-    client = createMqttClient(kiosksData, subscribedTopicsRef, setMqttLogs, mqttLogsRef, setPingResponses, pingTimeoutsRef);
-    mqttClientRef.current = client;  // Store the client in the ref
-
-    // Cleanup function
-    return () => {
-      // Clear all timeouts
-      Object.values(timeouts).forEach(timeout => clearTimeout(timeout));
-      
-      // Unsubscribe from all topics
-      if (client) {
-        Object.entries(kiosksData).forEach(([macAddress]) => {
-          const pingTopic = `kiosks/${macAddress}/ping`;
-          const statusTopic = `kiosks/${macAddress}/status`;
-          client.unsubscribe(pingTopic);
-          client.unsubscribe(statusTopic);
-        });
-        client.end();
-      }
-    };
-  }, [kiosksData]); // Only depend on kiosksData
 
   useEffect(() => {
     const style = document.createElement('style');
