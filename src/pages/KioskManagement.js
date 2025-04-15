@@ -330,6 +330,7 @@ function KioskManagement() {
   const [mqttLogs, setMqttLogs] = useState({});
   const [pingResponses, setPingResponses] = useState({});
   const [, setCountdownTimers] = useState({});
+  const [firmwareSize, setFirmwareSize] = useState(null);
   const mqttClientRef = useRef(null);
   const subscribedTopicsRef = useRef(new Set());
   const mqttLogsRef = useRef({});
@@ -661,21 +662,52 @@ function KioskManagement() {
     maxFiles: 1
   });
 
+  const formatFileSize = (bytes) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
   const handleUpdateFirmware = async () => {
     try {
       setIsUploading(true);
       setUploadProgress(0);
       setError(null);
       setSuccess(null);
+      setFirmwareSize(null);
 
       let firmwareUrl;
+      let fileName;
+      
       if (updateMethod === "github") {
-        firmwareUrl = `https://github.com/jjsprandel/SCAN/releases/download/${selectedVersion.value}/SCAN.bin`;
-        setUploadProgress(50);
+        // Get the firmware URL from GitHub
+        const response = await fetch(
+          `https://api.github.com/repos/jjsprandel/SCAN/releases/tags/${selectedVersion.value}`
+        );
+        const data = await response.json();
+        const asset = data.assets.find((asset) => asset.name === "SCAN.bin");
+        firmwareUrl = asset.browser_download_url;
+        fileName = "SCAN.bin";
+        
+        // Get the actual file size from the asset
+        if (asset && asset.size) {
+          setFirmwareSize(formatFileSize(asset.size));
+        } else {
+          // Fallback to fetching the file size directly
+          const sizeResponse = await fetch(asset.url, { method: 'HEAD' });
+          const size = sizeResponse.headers.get('content-length');
+          setFirmwareSize(size ? formatFileSize(parseInt(size)) : null);
+        }
       } else if (updateMethod === "custom") {
         if (!customFirmware) {
           throw new Error("Please select a firmware file");
         }
+
+        fileName = customFirmware.name;
+        // Get file size
+        setFirmwareSize(formatFileSize(customFirmware.size));
 
         const fileRef = storageRef(storage, `firmware/${Date.now()}-${customFirmware.name}`);
         await uploadBytes(fileRef, customFirmware);
@@ -712,7 +744,7 @@ function KioskManagement() {
                 setSuccess({
                   message: `Firmware update initiated for ${selectedKiosks.length} kiosk${selectedKiosks.length > 1 ? 's' : ''}`,
                   url: firmwareUrl,
-                  fileName: updateMethod === "github" ? "SCAN.bin" : customFirmware.name
+                  fileName: fileName
                 });
                 setTimeout(() => {
                   setIsUploading(false);
@@ -882,7 +914,10 @@ function KioskManagement() {
                       className={`p-4 border rounded text-center shadow-sm ${
                         isDragActive ? "border-primary bg-light" : "border-dashed"
                       }`}
-                      style={{ transition: 'all 0.3s ease' }}
+                      style={{ 
+                        transition: 'all 0.3s ease',
+                        cursor: 'pointer'
+                      }}
                     >
                       <input {...getInputProps()} />
                       {customFirmware ? (
@@ -925,7 +960,7 @@ function KioskManagement() {
                         style={{ transition: 'all 0.3s ease' }}
                       >
                         <i className="fas fa-download me-2"></i>
-                        Download {success.fileName}
+                        Download {success.fileName} {firmwareSize && `(${firmwareSize})`}
                       </Button>
                     </div>
                   </Alert>
