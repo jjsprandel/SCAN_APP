@@ -1,11 +1,59 @@
-.nav-link-custom {
-  font-size: 1.2rem; /* Adjust font size for better readability on mobile */
+.navbar-custom {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 0.5rem 0;
 }
 
-.navbar-toggler {
-  border: none; /* Optional: Remove border around the hamburger icon */
+.navbar-logo {
+  height: 40px;
+  width: auto;
+  filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.3));
+}
+
+.nav-link-custom {
+  font-size: 1rem;
+  font-weight: 500;
+  transition: color 0.2s ease;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+}
+
+.nav-link-custom:hover {
+  color: #fff !important;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.navbar-toggler-custom {
+  border: none;
+  padding: 0.5rem;
+}
+
+.navbar-toggler-custom:focus {
+  box-shadow: none;
 }
 
 .navbar-collapse {
-  text-align: center; /* Center-align links in the dropdown */
+  text-align: center;
+}
+
+.profile-link {
+  display: flex;
+  align-items: center;
+}
+
+.profile-img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+@media (max-width: 991.98px) {
+  .navbar-collapse {
+    padding: 1rem 0;
+  }
+  
+  .nav-link-custom {
+    padding: 0.75rem 1rem;
+  }
 }

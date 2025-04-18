@@ -764,10 +764,10 @@ function KioskManagement() {
 
         if (mqttClientRef.current && mqttClientRef.current.connected) {
           mqttClientRef.current.publish(topic, message, (err) => {
-            if (err) {
-              console.error(`Failed to publish message to ${topic}:`, err);
-            } else {
-              console.log(`Message published to ${topic}:`, message);
+          if (err) {
+            console.error(`Failed to publish message to ${topic}:`, err);
+          } else {
+            console.log(`Message published to ${topic}:`, message);
               messagesSent++;
               if (messagesSent === selectedKiosks.length) {
                 setUploadProgress(100);
