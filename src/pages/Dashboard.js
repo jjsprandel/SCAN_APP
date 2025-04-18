@@ -200,11 +200,12 @@ function Dashboard() {
                   backgroundRepeat: 'no-repeat',
                   position: 'relative',
                   transform: 'rotate(0deg)',
-                  backgroundBlendMode: 'normal'
+                  backgroundBlendMode: 'normal',
+                  minHeight: '100vh'
                 }}>
       {/* Semi-transparent overlay to ensure text readability */}
       <div style={{
-        position: 'absolute',
+        position: 'fixed',
         top: 0,
         left: 0,
         right: 0,
@@ -218,19 +219,22 @@ function Dashboard() {
         {/* Banner with background image */}
         <div style={{
           position: 'relative',
-          height: '180px',
+          height: 'auto',
+          minHeight: '120px',
           marginBottom: '30px',
           borderRadius: '12px',
           overflow: 'hidden',
           boxShadow: '0 6px 15px rgba(0,0,0,0.1)',
           display: 'flex',
+          flexDirection: 'row',
+          flexWrap: 'wrap',
           backgroundColor: '#f8f9fa',
           backgroundImage: 'linear-gradient(135deg, rgba(13, 110, 253, 0.05) 0%, rgba(13, 110, 253, 0.1) 100%)'
         }}>
           {/* Image container - left side */}
           <div style={{
-            width: '180px',
-            height: '100%',
+            width: '120px',
+            height: '120px',
             backgroundImage: 'url(/imgs/dashboard_background.png)',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
@@ -242,12 +246,13 @@ function Dashboard() {
             flex: 1,
             display: 'flex',
             alignItems: 'center',
-            padding: '0 30px',
-            position: 'relative'
+            padding: '15px',
+            position: 'relative',
+            minWidth: '200px'
           }}>
             {/* Logo container */}
             <div style={{
-              marginRight: '30px',
+              marginRight: '15px',
               display: 'flex',
               alignItems: 'center'
             }}>
@@ -255,7 +260,7 @@ function Dashboard() {
                 src="/imgs/logo_transparent.png" 
                 alt="Logo" 
                 style={{
-                  height: '100px',
+                  height: '80px',
                   width: 'auto',
                   filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))'
                 }}
@@ -287,7 +292,7 @@ function Dashboard() {
 
         <Row className="flex-grow-1">
           {/* Left Column */}
-          <Col md={4} className="d-flex flex-column">
+          <Col md={4} className="d-flex flex-column mb-4">
             <Card className="mb-4 flex-grow-1 border-0 shadow-sm hover-shadow" 
                   style={{ 
                     transition: 'all 0.3s ease',
@@ -304,11 +309,11 @@ function Dashboard() {
                 <div className="d-flex justify-content-center align-items-center mb-4">
                   <div className="rounded-circle bg-primary bg-opacity-10 p-4 d-flex align-items-center justify-content-center" 
                        style={{ 
-                         width: '120px', 
-                         height: '120px',
+                         width: '100px', 
+                         height: '100px',
                          boxShadow: '0 0 20px rgba(13, 110, 253, 0.2)'
                        }}>
-                    <i className="fas fa-users fa-3x text-primary"></i>
+                    <i className="fas fa-users fa-2x text-primary"></i>
                   </div>
                 </div>
                 <div className="text-center">
@@ -334,11 +339,11 @@ function Dashboard() {
                 <div className="d-flex justify-content-center align-items-center mb-4">
                   <div className="rounded-circle bg-primary bg-opacity-10 p-4 d-flex align-items-center justify-content-center" 
                        style={{ 
-                         width: '120px', 
-                         height: '120px',
+                         width: '100px', 
+                         height: '100px',
                          boxShadow: '0 0 20px rgba(13, 110, 253, 0.2)'
                        }}>
-                    <i className="fas fa-clock fa-3x text-primary"></i>
+                    <i className="fas fa-clock fa-2x text-primary"></i>
                   </div>
                 </div>
                 <div className="text-center">
@@ -358,12 +363,12 @@ function Dashboard() {
                     borderRadius: '12px'
                   }}>
               <Card.Header className="bg-white border-bottom py-3">
-                <div className="d-flex justify-content-between align-items-center">
+                <div className="d-flex justify-content-between align-items-center flex-wrap">
                   <h5 className="mb-0 fw-medium">
                     <i className="fas fa-chart-bar text-primary me-2"></i>
                     Occupancy Histogram
                   </h5>
-                  <Badge bg="primary" className="px-3 py-2 shadow-sm">
+                  <Badge bg="primary" className="px-3 py-2 shadow-sm mt-2 mt-md-0">
                     {selectedLocation} • {selectedDay}
                   </Badge>
                 </div>
@@ -411,7 +416,7 @@ function Dashboard() {
                   </Col>
                 </Row>
                 
-                <div style={{ height: '400px', position: 'relative' }}>
+                <div style={{ height: '300px', position: 'relative' }}>
                   <Bar data={chartData} options={chartOptions} />
                   {occupancyData.length === 0 && (
                     <div className="position-absolute top-50 start-50 translate-middle text-center">
